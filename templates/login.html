@@ -7,6 +7,7 @@
     <title>登入頁面</title>
     <style>
         body {
+            height: 100vh;
             background: #f0f2f5;
             font-family: Arial, sans-serif;
             margin: 0;
@@ -15,6 +16,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            flex-wrap: wrap;
         }
 
         .login-container {
@@ -83,11 +85,16 @@
             /* 設定錯誤訊息的顏色 */
         }
     </style>
+    <script src="https://src.hazelnut-paradise.com/utils.js"></script>
 </head>
 
 <body>
+    <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
+        height="320px"></iframe>
     <div class="login-container">
+        <h1>登入</h1>
         <h2>歡迎回到榛果繽紛樂</h2>
+
         <p id="warning"></p>
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
@@ -96,6 +103,7 @@
     </div>
 </body>
 <script>
+    getNavbar();
     showWarning = (message) => {
         var warning = document.querySelector('#warning');
         warning.innerText = message;
