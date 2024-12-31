@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登入頁面</title>
+    <style>
+        body {
+            background: #f0f2f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container {
+            width: 300px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .login-container button {
+            background-color: #6200ea;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-container a {
+            display: block;
+            border: #6200ea solid 1px;
+            margin-top: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #6200ea;
+        }
+
+        .login-container a:hover {
+            background-color: #3700b3;
+            border-color: #3700b3;
+            color: white;
+        }
+
+        .login-container button:hover {
+            background-color: #3700b3;
+        }
+
+        #warning {
+            border-radius: 5px;
+            height: 30px;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            color: red;
+            background-color: #f8d7da;
+            /* 設定錯誤訊息的顏色 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <h2>歡迎回到榛果繽紛樂</h2>
+        <p id="warning"></p>
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" id="login">登入</button>
+        <a href="/register">註冊</a>
+    </div>
+</body>
+<script>
+    showWarning = (message) => {
+        var warning = document.querySelector('#warning');
+        warning.innerText = message;
+        warning.style.display = 'flex';
+    }
+    document.getElementById('login').addEventListener('click', async () => {
+        var username = document.querySelector('input[name="username"]').value;
+        var password = document.querySelector('input[name="password"]').value;
+        var warning = document.querySelector('#warning');
+        if (username === '' || password === '') {
+            showWarning('請輸入帳號密碼');
+            return;
+        }
+        try {
+            const res = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+            if (res.status === 200) {
+                window.location.href = '/';
+            } else {
+                const resJson = await res.json()
+                showWarning(resJson.error);
+            }
+        } catch (e) {
+            console.log(e)
+            showWarning('無法連接伺服器');
+        }
+    });
+</script>
+
+</html>
