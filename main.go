@@ -54,7 +54,7 @@ func main() {
 	r.GET("/logout", logoutHandler)
 
 	// 啟動 Server
-	r.Run(":8080") // 監聽在 8080 port
+	r.Run(":3331") // 監聽在 3331 port
 }
 
 // -------------------------
