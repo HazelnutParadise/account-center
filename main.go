@@ -20,6 +20,7 @@ type User struct {
 }
 
 // 簡化的 in-memory user store: username -> User
+// TODO: 改用資料庫持久化儲存
 var userStore = map[string]User{}
 
 func main() {
