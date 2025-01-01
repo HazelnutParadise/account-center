@@ -53,7 +53,9 @@ func main() {
 
 	// 路由
 	r.GET("/", homeHandler)
+	r.GET("/register", registerPageHandler)
 	r.POST("/register", registerHandler)
+	r.GET("/login", loginPageHandler)
 	r.POST("/login", loginHandler)
 	r.GET("/profile", authRequired(), profileHandler) // 需要登入
 	r.GET("/logout", logoutHandler)
@@ -70,7 +72,7 @@ func homeHandler(c *gin.Context) {
 	username := session.Get("username")
 
 	if username == nil {
-		c.HTML(http.StatusOK, "login.html", nil)
+		c.Redirect(http.StatusFound, "/login")
 		return
 	}
 
@@ -78,6 +80,10 @@ func homeHandler(c *gin.Context) {
 		"message":  fmt.Sprintf("已登入, username = %s", username),
 		"username": username,
 	})
+}
+
+func registerPageHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "register.html", nil)
 }
 
 // -------------------------
@@ -114,6 +120,10 @@ func registerHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "註冊成功"})
+}
+
+func loginPageHandler(c *gin.Context) {
+	c.HTML(http.StatusOK, "login.html", nil)
 }
 
 // -------------------------

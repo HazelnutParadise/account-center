@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="icon" href="https://src.hazelnut-paradise.com/HazelnutParadise-icon.ico" type="image/x-icon">
+    <title>註冊 - 榛果繽紛樂</title>
+    {{ template "css" . }}
+</head>
+
+<body>
+    <main>
+        <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
+            height="320px"></iframe>
+        <div class="container">
+            <h1>註冊新帳號</h1>
+            <h2>歡迎加入榛果繽紛樂</h2>
+
+            <p id="warning" class="warning"></p>
+            <form>
+                <label for="username">使用者名稱</label>
+                <input id="username" type="text" name="username" placeholder="Username" required>
+                <label for="email">電子郵件</label>
+                <input id="email" type="email" name="email" placeholder="Email" required>
+                <label for="phone">電話</label>
+                <input id="phone" type="phone" name="phone" placeholder="Phone" required>
+                <label for="nickname">暱稱</label>
+                <input id="nickname" type="text" name="nickname" placeholder="Nickname" required>
+                <label for="password">密碼</label>
+                <input id="password" type="password" name="password" placeholder="Password" required>
+                <label for="password-confirm">確認密碼</label>
+                <input id="password-confirm" type="password" name="password2" placeholder="Password" required>
+            </form>
+            <button type="submit" id="register">註冊</button>
+            <a class="a-button" href="/login">登入現有帳號</a>
+            <div class="link-div">
+                <a href="">說明文件</a>
+            </div>
+        </div>
+    </main>
+</body>
+<script>
+    showWarning = (message) => {
+        const warning = document.getElementById('warning')
+        warning.innerText = message
+        warning.style.display = 'flex'
+    }
+
+    document.getElementById('register').addEventListener('click', async () => {
+        const form = document.querySelector('form');
+        if (!form.checkValidity()) {
+            form.reportValidity()
+            return;
+        }
+        const values = new Map([
+            ['username', document.getElementById('username').value],
+            ['email', document.getElementById('email').value],
+            ['phone', document.getElementById('phone').value],
+            ['nickname', document.getElementById('nickname').value],
+            ['password', document.getElementById('password').value],
+            ['password-confirm', document.getElementById('password-confirm').value]
+        ]);
+        const warning = document.getElementById("warning")
+        let password, passwordConfirm
+        for (const [k, v] of values) {
+            if (v === '') {
+                const label = document.querySelector(`label[for=${k}]`)
+                showWarning("請輸入" + label.innerText)
+                return
+            }
+            if (k === 'password') {
+                password = v
+            } else if (k === 'password-confirm') {
+                passwordConfirm = v
+            }
+        }
+        if (password !== passwordConfirm) {
+            showWarning('密碼不一致')
+            return
+        }
+        try {
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.fromEntries(values))
+            })
+            if (res.status === 200) {
+                window.location.href = '/'
+            } else {
+                const resJson = await res.json()
+                showWarning(resJson.error)
+            }
+        } catch (e) {
+            console.log(e)
+            showWarning('無法連接伺服器')
+        }
+    });
+</script>
+
+</html>

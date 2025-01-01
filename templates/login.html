@@ -4,42 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>登入頁面</title>
+    <link rel="icon" href="https://src.hazelnut-paradise.com/HazelnutParadise-icon.ico" type="image/x-icon">
+    <title>登入 - 榛果繽紛樂</title>
     {{ template "css" . }}
-    <script src="https://src.hazelnut-paradise.com/utils.js"></script>
 </head>
 
 <body>
-    <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
-        height="320px"></iframe>
-    <div class="container">
-        <h1>登入</h1>
-        <h2>歡迎回到榛果繽紛樂</h2>
+    <main>
+        <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
+            height="320px"></iframe>
+        <div class="container">
+            <h1>登入</h1>
+            <h2>歡迎回到榛果繽紛樂</h2>
 
-        <p id="warning" class="warning"></p>
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit" id="login">登入</button>
-        <a class="a-button" href="/register">註冊</a>
-        <div class="link-div">
-            <a href="/forget">忘記密碼</a>
-            <a href="">說明文件</a>
+            <p id="warning" class="warning"></p>
+            <label for="username">使用者名稱</label>
+            <input id="username" type="text" name="username" placeholder="Username" required>
+            <label for="password">密碼</label>
+            <input id="password" type="password" name="password" placeholder="Password" required>
+            <button type="submit" id="login">登入</button>
+            <a class="a-button" href="/register">註冊</a>
+            <div class="link-div">
+                <a href="/forget">忘記密碼</a>
+                <a href="">說明文件</a>
+            </div>
         </div>
-    </div>
+    </main>
 </body>
 <script>
-    getNavbar();
     showWarning = (message) => {
-        var warning = document.querySelector('#warning');
-        warning.innerText = message;
-        warning.style.display = 'flex';
+        const warning = document.getElementById('warning')
+        warning.innerText = message
+        warning.style.display = 'flex'
     }
     document.getElementById('login').addEventListener('click', async () => {
-        var username = document.querySelector('input[name="username"]').value;
-        var password = document.querySelector('input[name="password"]').value;
-        var warning = document.querySelector('#warning');
+        const form = document.querySelector('form');
+        if (!form.checkValidity()) {
+            form.reportValidity()
+            return
+        }
+        const username = document.querySelector('input[name="username"]').value
+        const password = document.querySelector('input[name="password"]').value
+        const warning = document.querySelector('#warning');
         if (username === '' || password === '') {
-            showWarning('請輸入帳號密碼');
+            showWarning('請輸入帳號密碼')
             return;
         }
         try {
@@ -54,14 +62,14 @@
                 })
             });
             if (res.status === 200) {
-                window.location.href = '/';
+                window.location.href = '/'
             } else {
                 const resJson = await res.json()
-                showWarning(resJson.error);
+                showWarning(resJson.error)
             }
         } catch (e) {
             console.log(e)
-            showWarning('無法連接伺服器');
+            showWarning('無法連接伺服器')
         }
     });
 </script>
