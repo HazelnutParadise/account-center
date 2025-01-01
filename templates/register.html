@@ -11,8 +11,6 @@
 
 <body>
     <main>
-        <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
-            height="320px"></iframe>
         <div class="container">
             <h1>註冊新帳號</h1>
             <h2>歡迎加入榛果繽紛樂</h2>
@@ -35,9 +33,12 @@
             <button type="submit" id="register">註冊</button>
             <a class="a-button" href="/login">登入現有帳號</a>
             <div class="link-div">
-                <a href="">說明文件</a>
+                <a href={{.SupportDocsLink}} target="_blank">說明文件</a>
             </div>
         </div>
+        <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
+            height="320px">
+        </iframe>
     </main>
 </body>
 <script>

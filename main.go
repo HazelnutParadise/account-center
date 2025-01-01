@@ -13,8 +13,10 @@ import (
 // 一天的秒數
 const DAY = 24 * 3600
 
+const supportDocsLink = "https://support.hazelnut-paradise.com/?category_id=2&category_name=%e6%9c%83%e5%93%a1%e8%88%87%e5%b8%b3%e8%99%9f"
+
 // Session 名稱
-const SessionName = "sessionid"
+const sessionName = "sessionid"
 
 // User 結構：示範用
 type User struct {
@@ -49,7 +51,7 @@ func main() {
 	})
 
 	// 2. 將 session middleware 註冊到 Gin
-	r.Use(sessions.Sessions(SessionName, store))
+	r.Use(sessions.Sessions(sessionName, store))
 
 	// 路由
 	r.GET("/", homeHandler)
@@ -83,7 +85,11 @@ func homeHandler(c *gin.Context) {
 }
 
 func registerPageHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "register.html", nil)
+	c.HTML(http.StatusOK, "register.html", struct {
+		SupportDocsLink string
+	}{
+		SupportDocsLink: supportDocsLink,
+	})
 }
 
 // -------------------------
@@ -123,7 +129,11 @@ func registerHandler(c *gin.Context) {
 }
 
 func loginPageHandler(c *gin.Context) {
-	c.HTML(http.StatusOK, "login.html", nil)
+	c.HTML(http.StatusOK, "login.html", struct {
+		SupportDocsLink string
+	}{
+		SupportDocsLink: supportDocsLink,
+	})
 }
 
 // -------------------------
