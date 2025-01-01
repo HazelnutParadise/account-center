@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/HazelnutParadise/Go-Utils/hashutil"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,10 @@ const sessionName = "sessionid"
 type User struct {
 	Username string
 	Password string // 正式專案請改用雜湊
+	Salt     string
+	Email    string
+	Phone    string
+	Nickname string
 }
 
 // 簡化的 in-memory user store: username -> User
@@ -102,8 +107,12 @@ func registerPageHandler(c *gin.Context) {
 // -------------------------
 func registerHandler(c *gin.Context) {
 	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username        string `json:"username"`
+		Password        string `json:"password"`
+		PasswordConfirm string `json:"password_confirm"`
+		Email           string `json:"email"`
+		Phone           string `json:"phone"`
+		Nickname        string `json:"nickname"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -112,8 +121,16 @@ func registerHandler(c *gin.Context) {
 	}
 
 	// 簡易檢查
-	if req.Username == "" || req.Password == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "請填寫帳號與密碼"})
+	for _, v := range []string{req.Username, req.Password, req.Email, req.Phone, req.Nickname} {
+		if v == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "請填寫所有欄位"})
+			return
+		}
+	}
+
+	// 密碼確認
+	if req.Password != req.PasswordConfirm {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "密碼確認不相符"})
 		return
 	}
 
@@ -123,10 +140,21 @@ func registerHandler(c *gin.Context) {
 		return
 	}
 
+	// 雜湊密碼
+	hashedPassword, hashSalt, err := hashutil.Hash(req.Password)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "無法雜湊密碼"})
+		return
+	}
+
 	// 在正式專案中，請使用 bcrypt/argon2 雜湊後再儲存
 	userStore[req.Username] = User{
 		Username: req.Username,
-		Password: req.Password,
+		Password: hashedPassword,
+		Salt:     hashSalt,
+		Email:    req.Email,
+		Phone:    req.Phone,
+		Nickname: req.Nickname,
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "註冊成功"})

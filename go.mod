@@ -5,6 +5,7 @@ go 1.22.7
 require github.com/gin-contrib/sessions v1.0.2
 
 require (
+	github.com/HazelnutParadise/Go-Utils v0.8.0 // indirect
 	github.com/bytedance/sonic v1.11.3 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
