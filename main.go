@@ -29,6 +29,7 @@ type User struct {
 var userStore = map[string]User{}
 
 func main() {
+	// gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
 	// 設置模板渲染引擎
@@ -63,7 +64,10 @@ func main() {
 	r.GET("/logout", logoutHandler)
 
 	// 啟動 Server
-	r.Run(":3331") // 監聽在 3331 port
+	err := r.Run(":3331") // 監聽在 3331 port
+	if err != nil {
+		panic(err)
+	}
 }
 
 // -------------------------
