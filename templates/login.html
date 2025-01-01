@@ -12,7 +12,8 @@
 <body>
     <main>
         <iframe src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html" frameborder="0" width="300px"
-            height="320px"></iframe>
+            height="320px">
+        </iframe>
         <div class="container">
             <h1>登入</h1>
             <h2>歡迎回到榛果繽紛樂</h2>
@@ -45,10 +46,9 @@
         }
         const username = document.querySelector('input[name="username"]').value
         const password = document.querySelector('input[name="password"]').value
-        const warning = document.querySelector('#warning');
         if (username === '' || password === '') {
             showWarning('請輸入帳號密碼')
-            return;
+            return
         }
         try {
             const res = await fetch('/login', {
@@ -60,7 +60,7 @@
                     username: username,
                     password: password
                 })
-            });
+            })
             if (res.status === 200) {
                 window.location.href = '/'
             } else {
@@ -71,7 +71,7 @@
             console.log(e)
             showWarning('無法連接伺服器')
         }
-    });
+    })
 </script>
 
 </html>

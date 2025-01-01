@@ -14,7 +14,6 @@
         <div class="container">
             <h1>註冊新帳號</h1>
             <h2>歡迎加入榛果繽紛樂</h2>
-
             <p id="warning" class="warning"></p>
             <form>
                 <label for="username">使用者名稱</label>
@@ -62,7 +61,6 @@
             ['password', document.getElementById('password').value],
             ['password-confirm', document.getElementById('password-confirm').value]
         ]);
-        const warning = document.getElementById("warning")
         let password, passwordConfirm
         for (const [k, v] of values) {
             if (v === '') {
@@ -98,7 +96,7 @@
             console.log(e)
             showWarning('無法連接伺服器')
         }
-    });
+    })
 </script>
 
 </html>
