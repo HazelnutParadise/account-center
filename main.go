@@ -10,6 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 一天的秒數
+const DAY = 24 * 3600
+
 // Session 名稱
 const SessionName = "sessionid"
 
@@ -41,7 +44,8 @@ func main() {
 		HttpOnly: true,
 		// Secure: true,  // 若正式站走 HTTPS，務必開啟
 		// SameSite: http.SameSiteStrictMode,
-		MaxAge: 3600, // Session 有效期(秒)，可自行調整
+		MaxAge:   30 * DAY, // Session 有效期(秒)，可自行調整
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	// 2. 將 session middleware 註冊到 Gin
@@ -158,10 +162,10 @@ func loginHandler(c *gin.Context) {
 // -------------------------
 func profileHandler(c *gin.Context) {
 	session := sessions.Default(c)
-	username := session.Get("username")
+	username := session.Get("username").(string)
 
 	// 顯示個人資訊 (示範: 只顯示 username)
-	user := userStore[username.(string)]
+	user := userStore[username]
 	c.JSON(http.StatusOK, gin.H{
 		"message":  "個人資訊",
 		"username": user.Username,
