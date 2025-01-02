@@ -28,8 +28,9 @@
                 <input id="password" type="password" name="password" placeholder="Password" required>
                 <label for="password-confirm">確認密碼</label>
                 <input id="password-confirm" type="password" name="password2" placeholder="Password" required>
+                <input type="submit" id="register" value="註冊">
             </form>
-            <button type="submit" id="register">註冊</button>
+            
             <a class="a-button" href="/login">登入現有帳號</a>
             <div class="link-div">
                 <a href={{.SupportDocsLink}} target="_blank">說明文件</a>
@@ -47,8 +48,9 @@
         warning.style.display = 'flex'
     }
 
-    document.getElementById('register').addEventListener('click', async () => {
-        const form = document.querySelector('form');
+    document.getElementById('register').addEventListener('click', async (e) => {
+        e.preventDefault()
+        const form = document.querySelector('form')
         if (!form.checkValidity()) {
             form.reportValidity()
             return;
@@ -59,7 +61,7 @@
             ['phone', document.getElementById('phone').value],
             ['nickname', document.getElementById('nickname').value],
             ['password', document.getElementById('password').value],
-            ['password-confirm', document.getElementById('password-confirm').value]
+            ['passwordConfirm', document.getElementById('password-confirm').value]
         ]);
         let password, passwordConfirm
         for (const [k, v] of values) {
@@ -70,7 +72,7 @@
             }
             if (k === 'password') {
                 password = v
-            } else if (k === 'password-confirm') {
+            } else if (k === 'passwordConfirm') {
                 passwordConfirm = v
             }
         }
@@ -86,10 +88,11 @@
                 },
                 body: JSON.stringify(Object.fromEntries(values))
             })
+            const resJson = await res.json()
             if (res.status === 200) {
-                window.location.href = '/'
+                alert(resJson.message)
+                window.location.href = '/login'
             } else {
-                const resJson = await res.json()
                 showWarning(resJson.error)
             }
         } catch (e) {
