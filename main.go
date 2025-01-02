@@ -190,8 +190,8 @@ func loginHandler(c *gin.Context) {
 		return
 	}
 
-	// 檢查密碼 (示範用明碼，比對)
-	if user.Password != req.Password {
+	// 檢查密碼
+	if !hashutil.CompareHash(req.Password, user.Password, user.Salt) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "密碼錯誤"})
 		return
 	}
