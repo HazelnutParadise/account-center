@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"account/obj"
+
 	"github.com/HazelnutParadise/Go-Utils/hashutil"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -20,20 +22,9 @@ const supportDocsLink = "https://support.hazelnut-paradise.com/?category_id=2&ca
 // Session 名稱
 const sessionName = "sessionid"
 
-// User 結構：示範用
-type User struct {
-	ID       string
-	Username string
-	Password string // 正式專案請改用雜湊
-	Salt     string
-	Email    string
-	Phone    string
-	Nickname string
-}
-
 // 簡化的 in-memory user store: userID -> User
 // TODO: 改用資料庫持久化儲存
-var userStore = map[string]User{}
+var userStore = map[string]obj.User{}
 
 // 簡化的 in-memory session store: sessionID -> userID
 // TODO: 改用資料庫持久化儲存
@@ -159,7 +150,7 @@ func registerHandler(c *gin.Context) {
 	userID := fmt.Sprintf("%d", len(userStore)+1)
 
 	// 在正式專案中，請使用 bcrypt/argon2 雜湊後再儲存
-	userStore[userID] = User{
+	userStore[userID] = obj.User{
 		ID:       userID,
 		Username: req.Username,
 		Password: hashedPassword,
@@ -197,7 +188,7 @@ func loginHandler(c *gin.Context) {
 	}
 
 	var userID string
-	var user User
+	var user obj.User
 	for id, u := range userStore {
 		if u.Username == req.Username {
 			userID = id
