@@ -256,9 +256,14 @@ func profilePageHandler(c *gin.Context) {
 	var user obj.User
 	DB.First(&user, "id = ?", userID)
 	c.HTML(http.StatusOK, "profile.html", struct {
-		Username string
+		User obj.User
 	}{
-		Username: user.Username,
+		User: obj.User{
+			Username: user.Username,
+			Phone:    user.Phone,
+			Nickname: user.Nickname,
+			Email:    user.Email,
+		},
 	})
 }
 
