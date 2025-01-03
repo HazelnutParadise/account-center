@@ -80,14 +80,13 @@ func homeHandler(c *gin.Context) {
 		return
 	}
 
-	session := sessions.Default(c)
-	sessionID := session.Get("sessionID")
-	sessionID = sessionStore[sessionID.(string)]
+	redirect := c.Query("redirect")
+	if redirect != "" {
+		c.Redirect(http.StatusFound, redirect)
+		return
+	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message":   fmt.Sprintf("已登入, userID = %s", sessionID),
-		"sessionID": sessionID,
-	})
+	c.Redirect(http.StatusFound, "/profile")
 }
 
 func registerPageHandler(c *gin.Context) {
@@ -246,10 +245,10 @@ func profileHandler(c *gin.Context) {
 
 	// 顯示個人資訊 (示範: 只顯示 username)
 	user := userStore[userID]
-	c.JSON(http.StatusOK, gin.H{
-		"message":  "個人資訊",
-		"username": user.Username,
-		// 可加入更多屬性 (email, phone, roles...)
+	c.HTML(http.StatusOK, "profile.html", struct {
+		Username string
+	}{
+		Username: user.Username,
 	})
 }
 
@@ -280,9 +279,8 @@ func logoutHandler(c *gin.Context) {
 // -------------------------
 func authRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		if session.Get("sessionID") == nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "尚未登入，無法存取"})
+		if !isLoggedin(c) {
+			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
 			return
 		}

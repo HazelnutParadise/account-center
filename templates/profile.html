@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8" />
+  <title>使用者資訊</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background: linear-gradient(to bottom, #f3f5f9, #ffffff);
+    }
+    .profile-container {
+      width: 400px;
+      margin: 50px auto;
+      text-align: center;
+      background-color: #ffffff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .profile-container img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+    }
+    .profile-container h1 {
+      margin: 10px 0;
+    }
+    .profile-container p {
+      line-height: 1.5;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  {{ template "css" . }}
+  <main>
+    <div class="container">
+      <img src="profile.jpg" alt="Profile Photo" style="width:100px;height:100px;border-radius:50%;"/>
+      <h1 id="userName">{{.Username}}</h1>
+      <p id="userBio">這裡可以放置簡單的自我介紹或其他個人資訊。</p>
+      <button id="editBtn" onclick="toggleEdit()">編輯</button>
+      <form id="editForm" style="display:none;margin-top:10px;">
+        <input type="text" id="nameInput" placeholder="姓名" /><br />
+        <textarea id="bioInput" placeholder="個人資訊"></textarea><br />
+        <input type="submit" value="儲存" onclick="saveChanges();return false;" />
+      </form>
+    </div>
+  </main>
+  <script>
+    function toggleEdit() {
+      const form = document.getElementById('editForm');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      document.getElementById('nameInput').value = document.getElementById('userName').textContent;
+      document.getElementById('bioInput').value = document.getElementById('userBio').textContent;
+    }
+    function saveChanges() {
+      document.getElementById('userName').textContent = document.getElementById('nameInput').value;
+      document.getElementById('userBio').textContent = document.getElementById('bioInput').value;
+      toggleEdit();
+    }
+  </script>
+</body>
+</html>
