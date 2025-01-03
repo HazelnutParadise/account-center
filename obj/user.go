@@ -2,11 +2,12 @@ package obj
 
 // User 結構：示範用
 type User struct {
-	ID       string
-	Username string
-	Password string // 正式專案請改用雜湊
+	ID       uint   `gorm:"primaryKey"`
+	Username string `gorm:"unique"`
+	Password string
 	Salt     string
-	Email    string
-	Phone    string
+	Email    string `gorm:"unique"`
+	Phone    string `gorm:"unique"`
 	Nickname string
+	Sessions []Session `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }

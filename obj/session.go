@@ -1,6 +1,10 @@
 package obj
 
+import "time"
+
 type Session struct {
-	ID     string
-	UserID string
+	ID        string `gorm:"primaryKey"`
+	UserID    string
+	CreatedAt time.Time
+	IsActive  bool
 }

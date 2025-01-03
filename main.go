@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"account/obj"
 
+	"account/db"
+
+	"github.com/HazelnutParadise/Go-Utils/conv"
 	"github.com/HazelnutParadise/Go-Utils/hashutil"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -24,11 +28,10 @@ const sessionName = "sessionid"
 
 // 簡化的 in-memory user store: userID -> User
 // TODO: 改用資料庫持久化儲存
-var userStore = map[string]obj.User{}
+var DB = db.DB
 
 // 簡化的 in-memory session store: sessionID -> userID
 // TODO: 改用資料庫持久化儲存
-var sessionStore = map[string]string{}
 
 func main() {
 	// gin.SetMode(gin.ReleaseMode)
@@ -132,11 +135,25 @@ func registerHandler(c *gin.Context) {
 	}
 
 	// 檢查是否已存在
-	for _, user := range userStore {
-		if user.Username == req.Username {
-			c.JSON(http.StatusConflict, gin.H{"error": "帳號已存在"})
-			return
-		}
+	users := []obj.User{}
+	DB.Find(&users, "username = ?", req.Username)
+	fmt.Println(users)
+	fmt.Println(len(users) == 0)
+	if len(users) > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "該使用這名稱已存在，請換一個"})
+		return
+	}
+
+	DB.Find(&users, "email = ?", req.Email)
+	if len(users) > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "這個 Email 已被註冊，請登入現有帳號"})
+		return
+	}
+
+	DB.Find(&users, "phone = ?", req.Phone)
+	if len(users) > 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "這個手機號碼已被註冊，請登入現有帳號"})
+		return
 	}
 
 	// 雜湊密碼
@@ -146,19 +163,13 @@ func registerHandler(c *gin.Context) {
 		return
 	}
 
-	// 生成唯一的 userID
-	userID := fmt.Sprintf("%d", len(userStore)+1)
-
-	// 在正式專案中，請使用 bcrypt/argon2 雜湊後再儲存
-	userStore[userID] = obj.User{
-		ID:       userID,
-		Username: req.Username,
+	DB.Create(&obj.User{Username: req.Username,
 		Password: hashedPassword,
 		Salt:     hashSalt,
 		Email:    req.Email,
 		Phone:    req.Phone,
 		Nickname: req.Nickname,
-	}
+	})
 
 	c.JSON(http.StatusOK, gin.H{"message": "註冊成功"})
 }
@@ -187,21 +198,16 @@ func loginHandler(c *gin.Context) {
 		return
 	}
 
-	var userID string
+	users := []obj.User{}
 	var user obj.User
-	for id, u := range userStore {
-		if u.Username == req.Username {
-			userID = id
-			user = u
-			break
-		}
-	}
-
-	if userID == "" {
+	DB.Find(&users, "username = ?", req.Username)
+	if len(users) == 0 {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "使用者不存在"})
 		fmt.Println("使用者不存在:", req.Username)
 		return
 	}
+
+	user = users[0]
 
 	// 檢查密碼
 	if !hashutil.CompareHash(req.Password, user.Password, user.Salt) {
@@ -211,8 +217,7 @@ func loginHandler(c *gin.Context) {
 	}
 
 	// 生成新的 session ID
-	sessionID := uuid.New().String()
-	sessionStore[sessionID] = userID
+	sessionID := createSessionInDB(user.ID)
 
 	// 成功後寫入 Session
 	session := sessions.Default(c)
@@ -242,10 +247,14 @@ func loginHandler(c *gin.Context) {
 func profilePageHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	sessionID := session.Get("sessionID").(string)
-	userID := sessionStore[sessionID]
+	var sessionInDB obj.Session
+	DB.First(&sessionInDB, "id = ?", sessionID)
+
+	userID := sessionInDB.UserID
 
 	// 顯示個人資訊 (示範: 只顯示 username)
-	user := userStore[userID]
+	var user obj.User
+	DB.First(&user, "id = ?", userID)
 	c.HTML(http.StatusOK, "profile.html", struct {
 		Username string
 	}{
@@ -256,10 +265,13 @@ func profilePageHandler(c *gin.Context) {
 func profileEditHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	sessionID := session.Get("sessionID").(string)
-	userID := sessionStore[sessionID]
+	var sessionInDB obj.Session
+	DB.First(&sessionInDB, "id = ?", sessionID)
+	userID := sessionInDB.UserID
 
 	// 顯示個人資訊 (示範: 只顯示 username)
-	user := userStore[userID]
+	var user obj.User
+	DB.First(&user, "id = ?", userID)
 
 	var req struct {
 		Email    string `json:"email"`
@@ -274,11 +286,15 @@ func profileEditHandler(c *gin.Context) {
 	}
 
 	// 更新使用者資訊
-	user.Email = req.Email
-	user.Phone = req.Phone
-	user.Nickname = req.Nickname
-
-	userStore[userID] = user
+	DB.Model(&user).Updates(struct {
+		email    string
+		phone    string
+		nickname string
+	}{
+		email:    req.Email,
+		phone:    req.Phone,
+		nickname: req.Nickname,
+	})
 
 	c.JSON(http.StatusOK, gin.H{"message": "更新成功"})
 }
@@ -291,7 +307,7 @@ func logoutHandler(c *gin.Context) {
 	sessionID := session.Get("sessionID").(string)
 
 	// 刪除 session 資料
-	delete(sessionStore, sessionID)
+	disableSessionInDB(sessionID)
 
 	// 設定 session 過期
 	session.Options(sessions.Options{
@@ -322,11 +338,41 @@ func authRequired() gin.HandlerFunc {
 func isLoggedin(c *gin.Context) bool {
 	session := sessions.Default(c)
 	sessionID := session.Get("sessionID")
-	_, exists := sessionStore[sessionID.(string)]
-	if sessionID == nil || !exists {
+
+	if sessionID == nil {
+		// 清除無效的 session
+		session.Clear()
+		return false
+	}
+
+	if !isSessionActive(sessionID.(string)) {
 		// 清除無效的 session
 		session.Clear()
 		return false
 	}
 	return true
+}
+
+func createSessionInDB(userID uint) string {
+	sessionID := uuid.New().String()
+	DB.Create(&obj.Session{
+		ID:        sessionID,
+		UserID:    conv.ToString(userID),
+		CreatedAt: time.Now(),
+		IsActive:  true,
+	})
+	return sessionID
+}
+
+func disableSessionInDB(sessionID string) {
+	DB.Model(&obj.Session{}).Where("id = ?", sessionID).Update("is_active", false)
+}
+
+func isSessionActive(sessionID string) bool {
+	var sessions []obj.Session
+	DB.Find(&sessions, "id = ?", sessionID)
+	if len(sessions) == 0 {
+		return false
+	}
+	return sessions[0].IsActive
 }
