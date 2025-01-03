@@ -12,15 +12,16 @@
     {{ template "css" . }}
     <main>
         <div class="container">
-            <img src="profile.jpg" alt="Profile Photo" style="width:100px;height:100px;border-radius:50%;" />
+            <img src="https://src.hazelnut-paradise.com/HazelnutParadise-logo.png" alt="Profile Photo"
+                style="width:100px;height:100px;border-radius:50%;" />
             <h1 id="nickName">{{.User.Nickname}}</h1>
-            <h2 id="userName">{{.User.Username}}</h1>
-                <div style="max-width: 200px;text-align: start;margin: 0 auto;">
-                    <p>Email：<span id="userEmail">{{.User.Email}}</span></p>
-                    <p>電話號碼：<span id="userPhone">{{.User.Phone}}</span></p>
-                </div>
-           
-            
+            <h2 id="userName">{{.User.Username}}</h2>
+            <div style="max-width: 200px;text-align: start;margin: 0 auto;">
+                <p>Email：<span id="userEmail">{{.User.Email}}</span></p>
+                <p>電話號碼：<span id="userPhone">{{.User.Phone}}</span></p>
+            </div>
+
+
             <p id="userBio">這裡可以放置簡單的自我介紹或其他個人資訊。</p>
             <button id="editBtn" onclick="toggleEdit()">編輯</button>
             <form id="editForm" style="display:none;margin-top:10px;">

@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
 
+	"account/lib"
 	"account/obj"
 
 	"account/db"
 
-	"github.com/HazelnutParadise/Go-Utils/conv"
 	"github.com/HazelnutParadise/Go-Utils/hashutil"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 // 一天的秒數
@@ -79,7 +77,7 @@ func main() {
 // 首頁 (GET /)
 // -------------------------
 func homeHandler(c *gin.Context) {
-	if !isLoggedin(c) {
+	if !lib.IsLoggedin(c) {
 		c.Redirect(http.StatusFound, "/login")
 		return
 	}
@@ -217,7 +215,7 @@ func loginHandler(c *gin.Context) {
 	}
 
 	// 生成新的 session ID
-	sessionID := createSessionInDB(user.ID)
+	sessionID := lib.CreateSessionInDB(user.ID)
 
 	// 成功後寫入 Session
 	session := sessions.Default(c)
@@ -312,7 +310,7 @@ func logoutHandler(c *gin.Context) {
 	sessionID := session.Get("sessionID").(string)
 
 	// 刪除 session 資料
-	disableSessionInDB(sessionID)
+	lib.DisableSessionInDB(sessionID)
 
 	// 設定 session 過期
 	session.Options(sessions.Options{
@@ -331,53 +329,11 @@ func logoutHandler(c *gin.Context) {
 // -------------------------
 func authRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !isLoggedin(c) {
+		if !lib.IsLoggedin(c) {
 			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
 			return
 		}
 		c.Next()
 	}
-}
-
-func isLoggedin(c *gin.Context) bool {
-	session := sessions.Default(c)
-	sessionID := session.Get("sessionID")
-
-	if sessionID == nil {
-		// 清除無效的 session
-		session.Clear()
-		return false
-	}
-
-	if !isSessionActive(sessionID.(string)) {
-		// 清除無效的 session
-		session.Clear()
-		return false
-	}
-	return true
-}
-
-func createSessionInDB(userID uint) string {
-	sessionID := uuid.New().String()
-	DB.Create(&obj.Session{
-		ID:        sessionID,
-		UserID:    conv.ToString(userID),
-		CreatedAt: time.Now(),
-		IsActive:  true,
-	})
-	return sessionID
-}
-
-func disableSessionInDB(sessionID string) {
-	DB.Model(&obj.Session{}).Where("id = ?", sessionID).Update("is_active", false)
-}
-
-func isSessionActive(sessionID string) bool {
-	var sessions []obj.Session
-	DB.Find(&sessions, "id = ?", sessionID)
-	if len(sessions) == 0 {
-		return false
-	}
-	return sessions[0].IsActive
 }

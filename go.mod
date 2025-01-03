@@ -2,16 +2,18 @@ module account
 
 go 1.22.7
 
-require github.com/gin-contrib/sessions v1.0.2
+require (
+	github.com/gin-contrib/sessions v1.0.2
+	github.com/glebarez/sqlite v1.11.0
+	gorm.io/gorm v1.25.12
+)
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
-	github.com/glebarez/sqlite v1.11.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
-	gorm.io/gorm v1.25.12 // indirect
 	modernc.org/libc v1.22.5 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
 	modernc.org/memory v1.5.0 // indirect
@@ -19,13 +21,13 @@ require (
 )
 
 require (
-	github.com/HazelnutParadise/Go-Utils v0.8.0 // indirect
+	github.com/HazelnutParadise/Go-Utils v0.8.0
 	github.com/bytedance/sonic v1.11.3 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.9.1 // indirect
+	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-playground/validator/v10 v10.19.0 // indirect
