@@ -61,7 +61,8 @@ func main() {
 	r.POST("/register", registerHandler)
 	r.GET("/login", loginPageHandler)
 	r.POST("/login", loginHandler)
-	r.GET("/profile", authRequired(), profileHandler) // 需要登入
+	r.GET("/profile", authRequired(), profilePageHandler) // 需要登入
+	r.POST("/profile", authRequired(), profileEditHandler)
 	r.GET("/logout", logoutHandler)
 
 	// 啟動 Server
@@ -238,7 +239,7 @@ func loginHandler(c *gin.Context) {
 // 受保護路由 (GET /profile)
 // 需登入才能查看: 使用 "authRequired" middleware
 // -------------------------
-func profileHandler(c *gin.Context) {
+func profilePageHandler(c *gin.Context) {
 	session := sessions.Default(c)
 	sessionID := session.Get("sessionID").(string)
 	userID := sessionStore[sessionID]
@@ -250,6 +251,36 @@ func profileHandler(c *gin.Context) {
 	}{
 		Username: user.Username,
 	})
+}
+
+func profileEditHandler(c *gin.Context) {
+	session := sessions.Default(c)
+	sessionID := session.Get("sessionID").(string)
+	userID := sessionStore[sessionID]
+
+	// 顯示個人資訊 (示範: 只顯示 username)
+	user := userStore[userID]
+
+	var req struct {
+		Email    string `json:"email"`
+		Phone    string `json:"phone"`
+		Nickname string `json:"nickname"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無效的參數格式"})
+		fmt.Println("JSON 綁定錯誤:", err)
+		return
+	}
+
+	// 更新使用者資訊
+	user.Email = req.Email
+	user.Phone = req.Phone
+	user.Nickname = req.Nickname
+
+	userStore[userID] = user
+
+	c.JSON(http.StatusOK, gin.H{"message": "更新成功"})
 }
 
 // -------------------------
