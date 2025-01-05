@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <link rel="icon" href="https://src.hazelnut-paradise.com/HazelnutParadise-icon.ico" type="image/x-icon">
+    <script src="https://src.hazelnut-paradise.com/utils.js"></script>
     <title>註冊 - 榛果繽紛樂</title>
     {{ template "css" . }}
 </head>
@@ -92,7 +93,7 @@
             const resJson = await res.json()
             if (res.status === 200) {
                 alert(resJson.message)
-                window.location.href = '/login'
+                redirectWithSearchParamsTo("/login")
             } else {
                 showWarning(resJson.error)
             }
