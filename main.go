@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 
+	"account/api"
 	"account/lib"
 	"account/obj"
 
@@ -62,9 +63,10 @@ func main() {
 	r.POST("/register", registerHandler)
 	r.GET("/login", loginPageHandler)
 	r.POST("/login", loginHandler)
-	r.GET("/profile", authRequired(), profilePageHandler) // 需要登入
-	r.POST("/profile", authRequired(), profileEditHandler)
+	r.GET("/profile", authRequiredPage(), profilePageHandler) // 需要登入
+	r.POST("/profile", authRequiredPage(), profileEditHandler)
 	r.GET("/logout", logoutHandler)
+	api.SetRoutes(r.Group("/api", authRequiredApi()))
 
 	// 啟動 Server
 	err := r.Run(":3331") // 監聽在 3331 port
@@ -327,10 +329,21 @@ func logoutHandler(c *gin.Context) {
 // Middleware: authRequired
 // 用於需要登入的路由
 // -------------------------
-func authRequired() gin.HandlerFunc {
+func authRequiredPage() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !lib.IsLoggedin(c) {
 			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
+func authRequiredApi() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !lib.IsLoggedin(c) {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "未登入"})
 			c.Abort()
 			return
 		}
