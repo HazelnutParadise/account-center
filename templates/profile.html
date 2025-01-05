@@ -30,6 +30,7 @@
                 <input type="submit" value="儲存" onclick="saveChanges();return false;" />
             </form>
         </div>
+        <button id="logout" onclick="logout()">登出</button>
     </main>
     <script>
         function toggleEdit() {
@@ -44,6 +45,21 @@
             document.getElementById('userName').textContent = document.getElementById('nameInput').value;
             document.getElementById('userBio').textContent = document.getElementById('bioInput').value;
             toggleEdit();
+        }
+        const logout = async () => {
+            const result = await fetch('/logout', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            const resultJson = await result.json()
+            if (result.ok) {
+                alert(resultJson.message)
+                window.location.href = '/login'
+            } else {
+                alert(resultJson.error)
+            }
         }
     </script>
 </body>
