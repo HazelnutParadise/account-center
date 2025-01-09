@@ -28,14 +28,14 @@ func getUserInfo(c *gin.Context) {
 		db.DB.First(&user, "id = ?", userID)
 	}
 	type userInfo struct {
-		Username string
-		Phone    string
-		Nickname string
-		Email    string
+		Username string `json:"username"`
+		Phone    string `json:"phone"`
+		Nickname string `json:"nickname"`
+		Email    string `json:"email"`
 	}
 	lib.FastJSON(c, 200, struct {
-		IsLogin bool
-		Info    userInfo
+		IsLogin bool     `json:"isLogin"`
+		Info    userInfo `json:"info"`
 	}{
 		IsLogin: isLogin,
 		Info: userInfo{
