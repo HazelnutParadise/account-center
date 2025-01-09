@@ -14,12 +14,12 @@ func SetRoutes(r *gin.RouterGroup) {
 }
 
 func getUserInfo(c *gin.Context) {
-	var isLogin bool
+	var isLoggedIn bool
 	var user = obj.User{}
 	session := sessions.Default(c)
 	sessionID := session.Get("sessionID").(string)
 	if sessionID != "" && lib.IsSessionActive(sessionID) {
-		isLogin = true
+		isLoggedIn = true
 
 		var sessionInDB obj.Session
 		db.DB.First(&sessionInDB, "id = ?", sessionID)
@@ -34,10 +34,10 @@ func getUserInfo(c *gin.Context) {
 		Email    string `json:"email"`
 	}
 	lib.FastJSON(c, 200, struct {
-		IsLogin bool     `json:"isLogin"`
-		Info    userInfo `json:"info"`
+		IsLoggedIn bool     `json:"isLoggedIn"`
+		Info       userInfo `json:"info"`
 	}{
-		IsLogin: isLogin,
+		IsLoggedIn: isLoggedIn,
 		Info: userInfo{
 			Username: user.Username,
 			Phone:    user.Phone,

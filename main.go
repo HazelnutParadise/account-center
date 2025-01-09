@@ -61,7 +61,7 @@ func main() {
 	r.GET("/profile", authRequiredPage(), profilePageHandler) // 需要登入
 	r.POST("/profile", authRequiredPage(), profileEditHandler)
 	r.GET("/logout", logoutHandler)
-	api.SetRoutes(r.Group("/api", authRequiredApi()))
+	api.SetRoutes(r.Group("/api"))
 
 	// 啟動 Server
 	err := r.Run(":3331") // 監聽在 3331 port
@@ -335,13 +335,13 @@ func authRequiredPage() gin.HandlerFunc {
 	}
 }
 
-func authRequiredApi() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if !lib.IsLoggedin(c) {
-			lib.FastJSON(c, http.StatusUnauthorized, lib.JsonError{Error: "未登入"})
-			c.Abort()
-			return
-		}
-		c.Next()
-	}
-}
+// func authRequiredApi() gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		if !lib.IsLoggedin(c) {
+// 			lib.FastJSON(c, http.StatusUnauthorized, lib.JsonError{Error: "未登入"})
+// 			c.Abort()
+// 			return
+// 		}
+// 		c.Next()
+// 	}
+// }
