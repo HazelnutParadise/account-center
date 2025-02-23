@@ -274,9 +274,11 @@ func profileEditHandler(c *gin.Context) {
 	DB.First(&user, "id = ?", userID)
 
 	var req struct {
+		Username string `json:"username"`
 		Email    string `json:"email"`
 		Phone    string `json:"phone"`
 		Nickname string `json:"nickname"`
+		Bio      string `json:"bio"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {

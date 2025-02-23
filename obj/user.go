@@ -9,5 +9,6 @@ type User struct {
 	Email    string `gorm:"unique"`
 	Phone    string `gorm:"unique"`
 	Nickname string
+	Bio      string
 	Sessions []Session `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
