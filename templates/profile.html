@@ -30,14 +30,17 @@
                     <h3>電話號碼</h3>
                     <span id="userPhone">{{.User.Phone}}</span>
                 </div>
-                <button id="editBtn" class="secondary-btn" onclick="toggleEdit()">編輯</button>
+                <div class="btn-box">
+                    <button id="editBtn" class="secondary-btn" onclick="toggleEdit()">編輯</button>
+                    <button id="saveChangesBtn" class="main-btn" style="display: none;"
+                        onclick="saveChanges();return false;">儲存</button>
+                </div>
             </div>
 
             <!-- 編輯表單 -->
             <form id="editForm" style="display:none;margin-top:10px;">
                 <input type="text" id="nameInput" placeholder="姓名" /><br />
                 <textarea id="bioInput" placeholder="個人資訊"></textarea><br />
-                <input type="submit" value="儲存" onclick="saveChanges();return false;" />
             </form>
         </div>
         <button id="logout" class="main-btn" onclick="logout()">登出</button>
@@ -45,6 +48,8 @@
     <script>
         function toggleEdit() {
             const editBtn = document.getElementById('editBtn');
+            const saveChangesBtn = document.getElementById('saveChangesBtn');
+            saveChangesBtn.style.display = saveChangesBtn.style.display === 'none' ? 'block' : 'none';
             editBtn.textContent = editBtn.textContent === '編輯' ? '取消' : '編輯';
             const form = document.getElementById('editForm');
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
