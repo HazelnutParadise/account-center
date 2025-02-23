@@ -17,22 +17,34 @@
             <h2>歡迎加入榛果繽紛樂</h2>
             <p id="warning" class="warning"></p>
             <form>
-                <label for="username">使用者名稱</label>
-                <input id="username" type="text" name="username" placeholder="Username" required>
-                <label for="nickname">暱稱</label>
-                <input id="nickname" type="text" name="nickname" placeholder="Nickname" required>
-                <label for="email">電子郵件</label>
-                <input id="email" type="email" name="email" placeholder="Email" required>
-                <label for="phone">電話</label>
-                <input id="phone" type="phone" name="phone" placeholder="Phone" required>
-                <label for="password">密碼</label>
-                <input id="password" type="password" name="password" placeholder="Password" required>
-                <label for="password-confirm">確認密碼</label>
-                <input id="password-confirm" type="password" name="password2" placeholder="Password" required>
-                <input type="submit" id="register" value="註冊帳號">
+                <div>
+                    <label for="username">使用者名稱</label>
+                    <input id="username" type="text" name="username" placeholder="Username" required>
+                </div>
+                <div>
+                    <label for="nickname">暱稱</label>
+                    <input id="nickname" type="text" name="nickname" placeholder="Nickname" required>
+                </div>
+                <div>
+                    <label for="email">電子郵件</label>
+                    <input id="email" type="email" name="email" placeholder="Email" required>
+                </div>
+                <div>
+                    <label for="phone">電話</label>
+                    <input id="phone" type="phone" name="phone" placeholder="Phone" required>
+                </div>
+                <div>
+                    <label for="password">密碼</label>
+                    <input id="password" type="password" name="password" placeholder="Password" required>
+                </div>
+                <div>
+                    <label for="password-confirm">確認密碼</label>
+                    <input id="password-confirm" type="password" name="password2" placeholder="Password" required>
+                </div>
                 <p class="note">*註冊後將無法更改 Email</p>
+                <input type="submit" id="register" value="註冊帳號">
             </form>
-            
+
             <a class="a-button" href="/login">登入現有帳號</a>
             <div class="link-div">
                 <a href={{.SupportDocsLink}} target="_blank">說明文件</a>

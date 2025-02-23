@@ -10,15 +10,21 @@
 
 <body>
     {{ template "css" . }}
-    <main>
+    <main class="profile">
         <div class="container">
             <img src="https://src.hazelnut-paradise.com/HazelnutParadise-logo.png" alt="Profile Photo"
                 style="width:100px;height:100px;border-radius:50%;" />
             <h1 id="nickName">{{.User.Nickname}}</h1>
             <h2 id="userName">{{.User.Username}}</h2>
-            <div style="max-width: 200px;text-align: start;margin: 0 auto;">
-                <p>Email：<span id="userEmail">{{.User.Email}}</span></p>
-                <p>電話號碼：<span id="userPhone">{{.User.Phone}}</span></p>
+            <div class="info">
+                <div>
+                    <h3>Email</h3>
+                    <span id="userEmail">{{.User.Email}}</span>
+                </div>
+                <div>
+                    <h3>電話號碼</h3>
+                    <span id="userPhone">{{.User.Phone}}</span>
+                </div>
             </div>
 
 
