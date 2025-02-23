@@ -55,7 +55,7 @@
     </main>
     <script>
         let isEditing = false;
-        function toggleEdit() {
+        const toggleEdit = () => {
             const editBtn = document.getElementById('editBtn');
             const saveChangesBtn = document.getElementById('saveChangesBtn');
             const editInputs = document.querySelectorAll('.edit-input');
@@ -88,11 +88,38 @@
 
             isEditing = !isEditing;
         }
-        function saveChanges() {
-            document.getElementById('userName').textContent = document.getElementById('nameInput').value;
-            document.getElementById('userBio').textContent = document.getElementById('bioInput').value;
+
+        const saveChanges = () => {
+            const nickNameEl = document.getElementById('nickName');
+            const userNameEl = document.getElementById('userName');
+            const userBioEl = document.getElementById('userBio');
+            const userPhoneEl = document.getElementById('userPhone');
+            const oldValues = {
+                nickName: nickNameEl.textContent,
+                userName: userNameEl.textContent,
+                userBio: userBioEl.textContent,
+                userPhone: userPhoneEl.textContent
+            }
+            nickNameEl.textContent = document.getElementById('nickNameInput').value;
+            userNameEl.textContent = document.getElementById('userNameInput').value;
+            userBioEl.textContent = document.getElementById('userBioInput').value;
+            userPhoneEl.textContent = document.getElementById('phoneInput').value;
+
+            // TODO: 呼叫 API 更新使用者資訊
+            try {
+
+            } catch (e) {
+                console.error(e);
+                alert('無法更新使用者資訊');
+                nickNameEl.textContent = oldValues.nickName;
+                userNameEl.textContent = oldValues.userName;
+                userBioEl.textContent = oldValues.userBio;
+                userPhoneEl.textContent = oldValues.userPhone;
+            }
+
             toggleEdit();
         }
+
         const logout = async () => {
             const result = await fetch('/logout', {
                 method: 'GET',
