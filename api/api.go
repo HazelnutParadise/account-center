@@ -4,6 +4,7 @@ import (
 	"account/db"
 	"account/lib"
 	"account/obj"
+	"encoding/json"
 	"sync"
 
 	"github.com/gin-contrib/sessions"
@@ -53,4 +54,19 @@ func getUserInfo(c *gin.Context) {
 
 func verifyEmail(c *gin.Context, registerDataBuf *sync.Map, emailVerifyCodeBuf *sync.Map) {
 	// todo: 完成驗證並將資料存到資料庫
+	var verifyData = struct {
+		Type      string `json:"type"`
+		DataUUID  string `json:"dataUUID"`
+		InputCode string `json:"inputCode"`
+	}{}
+	err := json.NewDecoder(c.Request.Body).Decode(&verifyData)
+	if err != nil {
+		lib.FastJSON(c, 400, struct {
+			Error string `json:"error"`
+		}{
+			Error: "Invalid request body",
+		})
+		return
+	}
+
 }
