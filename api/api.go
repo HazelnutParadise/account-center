@@ -69,4 +69,32 @@ func verifyEmail(c *gin.Context, registerDataBuf *sync.Map, emailVerifyCodeBuf *
 		return
 	}
 
+	switch verifyData.Type {
+	case "email":
+		code, ok := emailVerifyCodeBuf.Load(verifyData.DataUUID)
+		if !ok {
+			lib.FastJSON(c, 404, lib.JsonError{Error: "找不到對應的資料"})
+			return
+		}
+		if code != verifyData.InputCode {
+			lib.FastJSON(c, 400, lib.JsonError{Error: "輸入的驗證碼不正確"})
+			return
+		}
+		emailVerifyCodeBuf.Delete(verifyData.DataUUID)
+
+		// 如果是註冊，存進資料庫
+		if userData, ok := registerDataBuf.Load(verifyData.DataUUID); ok {
+			userData = userData.(obj.User)
+			dbRes := db.DB.Save(&userData)
+			if dbRes.Error != nil {
+				lib.FastJSON(c, 500, lib.JsonError{Error: "註冊失敗"})
+				return
+			}
+			registerDataBuf.Delete(verifyData.DataUUID)
+			lib.FastJSON(c, 200, lib.JsonMessage{Message: "註冊成功"})
+			return
+		}
+
+	}
+
 }

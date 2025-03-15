@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"slices"
 	"sync"
 
 	"account/api"
@@ -122,11 +123,9 @@ func registerHandler(c *gin.Context) {
 	}
 
 	// 簡易檢查
-	for _, v := range []string{req.Username, req.Password, req.Email, req.Phone, req.Nickname} {
-		if v == "" {
-			lib.FastJSON(c, http.StatusBadRequest, lib.JsonError{Error: "請填寫所有欄位"})
-			return
-		}
+	if slices.Contains([]string{req.Username, req.Password, req.Email, req.Phone, req.Nickname}, "") {
+		lib.FastJSON(c, http.StatusBadRequest, lib.JsonError{Error: "請填寫所有欄位"})
+		return
 	}
 
 	// 密碼確認
@@ -176,7 +175,7 @@ func registerHandler(c *gin.Context) {
 	tempUserUUID := uuid.New().String()
 	registerDataBuf.Store(tempUserUUID, newUser)
 
-	http.Redirect(c.Writer, c.Request, "/api/verify-email?data_uuid="+tempUserUUID, http.StatusFound)
+	http.Redirect(c.Writer, c.Request, "/verify-email?data_uuid="+tempUserUUID, http.StatusFound)
 }
 
 func loginPageHandler(c *gin.Context) {
@@ -361,19 +360,19 @@ func authRequiredPage() gin.HandlerFunc {
 func verifyEmailPageHandler(c *gin.Context) {
 	dataUUID := c.Query("data_uuid")
 	if dataUUID == "" {
-		lib.FastJSON(c, 400, lib.JsonError{Error: "failed to load data"})
+		lib.FastJSON(c, 400, lib.JsonError{Error: "資料載入失敗"})
 		return
 	}
 	data, ok := registerDataBuf.Load(dataUUID)
 	if !ok {
-		lib.FastJSON(c, 400, lib.JsonError{Error: "failed to load data"})
+		lib.FastJSON(c, 400, lib.JsonError{Error: "資料載入失敗"})
 		return
 	}
 	registerData := data.(obj.User)
 	code := lib.GenerateVerifyCode(7)
 	err := lib.SendEmailVerifyCode(registerData.Email, code)
 	if err != nil {
-		lib.FastJSON(c, 500, lib.JsonError{Error: "failed to send email"})
+		lib.FastJSON(c, 500, lib.JsonError{Error: "發送Email失敗"})
 		return
 	}
 	c.HTML(http.StatusOK, "verify-email.html", struct {
