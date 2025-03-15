@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sync"
 
 	"account/api"
 	"account/lib"
@@ -15,6 +16,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // 一天的秒數
@@ -26,6 +28,9 @@ const supportDocsLink = "https://support.hazelnut-paradise.com/?category_id=2&ca
 const sessionName = "sessionid"
 
 var DB = db.DB
+
+var registerDataBuf = sync.Map{}
+var emailVerifyCodeBuf = sync.Map{}
 
 func main() {
 	// gin.SetMode(gin.ReleaseMode)
@@ -56,12 +61,13 @@ func main() {
 	r.GET("/", homeHandler)
 	r.GET("/register", registerPageHandler)
 	r.POST("/register", registerHandler)
+	r.GET("/verify-email", verifyEmailPageHandler)
 	r.GET("/login", loginPageHandler)
 	r.POST("/login", loginHandler)
 	r.GET("/profile", authRequiredPage(), profilePageHandler) // 需要登入
 	r.POST("/profile", authRequiredPage(), profileEditHandler)
 	r.GET("/logout", logoutHandler)
-	api.SetRoutes(r.Group("/api"))
+	api.SetRoutes(r.Group("/api"), &registerDataBuf, &emailVerifyCodeBuf)
 
 	// 啟動 Server
 	err := r.Run(":3331") // 監聽在 3331 port
@@ -158,15 +164,19 @@ func registerHandler(c *gin.Context) {
 		return
 	}
 
-	DB.Create(&obj.User{Username: req.Username,
+	newUser := obj.User{
+		Username: req.Username,
 		Password: hashedPassword,
 		Salt:     hashSalt,
 		Email:    req.Email,
 		Phone:    req.Phone,
 		Nickname: req.Nickname,
-	})
+	}
 
-	lib.FastJSON(c, http.StatusOK, lib.JsonMessage{Message: "註冊成功"})
+	tempUserUUID := uuid.New().String()
+	registerDataBuf.Store(tempUserUUID, newUser)
+
+	http.Redirect(c.Writer, c.Request, "/api/verify-email?data_uuid="+tempUserUUID, http.StatusFound)
 }
 
 func loginPageHandler(c *gin.Context) {
@@ -347,3 +357,30 @@ func authRequiredPage() gin.HandlerFunc {
 // 		c.Next()
 // 	}
 // }
+
+func verifyEmailPageHandler(c *gin.Context) {
+	dataUUID := c.Query("data_uuid")
+	if dataUUID == "" {
+		lib.FastJSON(c, 400, lib.JsonError{Error: "failed to load data"})
+		return
+	}
+	data, ok := registerDataBuf.Load(dataUUID)
+	if !ok {
+		lib.FastJSON(c, 400, lib.JsonError{Error: "failed to load data"})
+		return
+	}
+	registerData := data.(obj.User)
+	code := lib.GenerateVerifyCode(7)
+	err := lib.SendEmailVerifyCode(registerData.Email, code)
+	if err != nil {
+		lib.FastJSON(c, 500, lib.JsonError{Error: "failed to send email"})
+		return
+	}
+	c.HTML(http.StatusOK, "verify-email.html", struct {
+		DataUUID   string
+		BackendURI string
+	}{
+		DataUUID:   dataUUID,
+		BackendURI: "/api/verify-email",
+	})
+}

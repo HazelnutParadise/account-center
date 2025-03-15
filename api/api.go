@@ -4,13 +4,17 @@ import (
 	"account/db"
 	"account/lib"
 	"account/obj"
+	"sync"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-func SetRoutes(r *gin.RouterGroup) {
+func SetRoutes(r *gin.RouterGroup, registerDataBuf *sync.Map, emailVerifyCodeBuf *sync.Map) {
 	r.GET("/user-info", getUserInfo)
+	r.POST("/verify-email", func(c *gin.Context) {
+		verifyEmail(c, registerDataBuf, emailVerifyCodeBuf)
+	})
 }
 
 func getUserInfo(c *gin.Context) {
@@ -45,4 +49,8 @@ func getUserInfo(c *gin.Context) {
 			Email:    user.Email,
 		},
 	})
+}
+
+func verifyEmail(c *gin.Context, registerDataBuf *sync.Map, emailVerifyCodeBuf *sync.Map) {
+	// todo: 完成驗證並將資料存到資料庫
 }
