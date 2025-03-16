@@ -22,7 +22,7 @@
         <h2 style="pedding:0;margin: 0;">驗證 Email</h2>
             <div class="text-box">
                 <h4>驗證碼已寄送至<br/>
-                <span style="font-size: 1.6rem;">tingzhen0102sssssss@gmail.com</span><br/>
+                <span style="font-size: 1.6rem;">{{.Email}}</span><br/>
                 請稍等幾秒</h4>
             <p>過了很久仍沒有收到？<br />重新整理此頁面以再次發送</p>
         </div>
@@ -57,7 +57,7 @@
         },
         body: JSON.stringify({
           type: "email",
-          dataUUID: {{.DataUUID}},
+          dataUUID: "{{.DataUUID}}",
           inputCode: code
         })
       })

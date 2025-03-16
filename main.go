@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"slices"
@@ -63,6 +65,7 @@ func main() {
 	r.GET("/register", registerPageHandler)
 	r.POST("/register", registerHandler)
 	r.GET("/verify-email", verifyEmailPageHandler)
+	r.POST("/verify-email", verifyEmailHandler)
 	r.GET("/login", loginPageHandler)
 	r.POST("/login", loginHandler)
 	r.GET("/profile", authRequiredPage(), profilePageHandler) // 需要登入
@@ -178,14 +181,13 @@ func registerHandler(c *gin.Context) {
 	tempUserUUID := uuid.New().String()
 	registerDataBuf.Store(tempUserUUID, newUser)
 
-	// 保留重新導向查詢參數
-	redirectUrl := c.Query("redirect")
-	if redirectUrl != "" {
-		http.Redirect(c.Writer, c.Request, "/verify-email?data_uuid="+tempUserUUID+"&redirect="+redirectUrl, http.StatusFound)
-		return
-	}
-
-	http.Redirect(c.Writer, c.Request, "/verify-email?data_uuid="+tempUserUUID, http.StatusFound)
+	lib.FastJSON(c, 200, struct {
+		Message  string `json:"message"`
+		DataUUID string `json:"dataUUID"`
+	}{
+		Message:  "接下來請驗證 Email",
+		DataUUID: tempUserUUID,
+	})
 }
 
 func loginPageHandler(c *gin.Context) {
@@ -359,13 +361,64 @@ func verifyEmailPageHandler(c *gin.Context) {
 		lib.FastJSON(c, 500, lib.JsonError{Error: "發送Email失敗"})
 		return
 	}
+	emailVerifyCodeBuf.Store(dataUUID, code)
 	c.HTML(http.StatusOK, "verify-email.html", struct {
+		Email      string
 		DataUUID   string
 		BackendURI string
 	}{
+		Email:      registerData.Email,
 		DataUUID:   dataUUID,
-		BackendURI: "/api/verify-email",
+		BackendURI: "/verify-email",
 	})
+}
+
+func verifyEmailHandler(c *gin.Context) {
+	var verifyData = struct {
+		Type      string `json:"type"`
+		DataUUID  string `json:"dataUUID"`
+		InputCode string `json:"inputCode"`
+	}{}
+	err := json.NewDecoder(c.Request.Body).Decode(&verifyData)
+	if err != nil {
+		lib.FastJSON(c, 400, struct {
+			Error string `json:"error"`
+		}{
+			Error: "Invalid request body",
+		})
+		return
+	}
+
+	switch verifyData.Type {
+	case "email":
+		code, ok := emailVerifyCodeBuf.Load(verifyData.DataUUID)
+		if !ok {
+			lib.FastJSON(c, 404, lib.JsonError{Error: "找不到對應的資料"})
+			return
+		}
+		if code != verifyData.InputCode {
+			lib.FastJSON(c, 400, lib.JsonError{Error: "輸入的驗證碼不正確"})
+			return
+		}
+		emailVerifyCodeBuf.Delete(verifyData.DataUUID)
+
+		// 如果是註冊，存進資料庫
+		if userData, ok := registerDataBuf.Load(verifyData.DataUUID); ok {
+			log.Println(userData)
+			user := userData.(obj.User)
+			dbRes := db.DB.Save(&user)
+			registerDataBuf.Delete(verifyData.DataUUID)
+			if dbRes.Error != nil {
+				lib.FastJSON(c, 500, lib.JsonError{Error: "註冊失敗"})
+				return
+			}
+
+			lib.FastJSON(c, 200, lib.JsonMessage{Message: "註冊成功"})
+			return
+		}
+
+	}
+
 }
 
 // -------------------------

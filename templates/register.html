@@ -161,8 +161,11 @@
                     });
                     const resJson = await res.json();
                     if (res.status === 200) {
+                        const dataUUID = resJson.dataUUID;
                         alert(resJson.message);
-                        redirectWithSearchParamsTo("/login");
+                        redirectWithSearchParamsTo(
+                            "/verify-email?data_uuid=" + dataUUID,
+                        );
                     } else {
                         showWarning(resJson.error);
                     }
