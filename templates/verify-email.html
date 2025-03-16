@@ -50,14 +50,14 @@
     const code = document.getElementById('code').value;
     if (code.length === 7) {
       try{
-      const response = await fetch('/api/verify-email', {
+      const response = await fetch({{.BackendURI}}, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           type: "email",
-          dataUUID: "kkk",
+          dataUUID: {{.DataUUID}},
           inputCode: code
         })
       })

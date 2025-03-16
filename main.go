@@ -332,30 +332,30 @@ func logoutHandler(c *gin.Context) {
 }
 
 func verifyEmailPageHandler(c *gin.Context) {
-	// dataUUID := c.Query("data_uuid")
-	// if dataUUID == "" {
-	// 	lib.FastJSON(c, 400, lib.JsonError{Error: "資料載入失敗"})
-	// 	return
-	// }
-	// data, ok := registerDataBuf.Load(dataUUID)
-	// if !ok {
-	// 	lib.FastJSON(c, 400, lib.JsonError{Error: "資料載入失敗"})
-	// 	return
-	// }
-	// registerData := data.(obj.User)
-	// code := lib.GenerateVerifyCode(7)
-	// err := lib.SendEmailVerifyCode(registerData.Email, code)
-	// if err != nil {
-	// 	lib.FastJSON(c, 500, lib.JsonError{Error: "發送Email失敗"})
-	// 	return
-	// }
-	c.HTML(http.StatusOK, "verify-email.html", /*struct {
-			DataUUID   string
-			BackendURI string
-		}{
-			DataUUID:   dataUUID,
-			BackendURI: "/api/verify-email",
-			}*/nil)
+	dataUUID := c.Query("data_uuid")
+	if dataUUID == "" {
+		lib.FastJSON(c, 400, lib.JsonError{Error: "資料載入失敗"})
+		return
+	}
+	data, ok := registerDataBuf.Load(dataUUID)
+	if !ok {
+		lib.FastJSON(c, 400, lib.JsonError{Error: "資料載入失敗"})
+		return
+	}
+	registerData := data.(obj.User)
+	code := lib.GenerateVerifyCode(7)
+	err := lib.SendEmailVerifyCode(registerData.Email, code)
+	if err != nil {
+		lib.FastJSON(c, 500, lib.JsonError{Error: "發送Email失敗"})
+		return
+	}
+	c.HTML(http.StatusOK, "verify-email.html", struct {
+		DataUUID   string
+		BackendURI string
+	}{
+		DataUUID:   dataUUID,
+		BackendURI: "/api/verify-email",
+	})
 }
 
 // -------------------------
