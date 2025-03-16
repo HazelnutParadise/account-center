@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, user-scalable=no"
+        />
+        <link
+            rel="icon"
+            href="https://src.hazelnut-paradise.com/HazelnutParadise-icon.ico"
+            type="image/x-icon"
+        />
+        <script src="https://src.hazelnut-paradise.com/utils.js"></script>
+        <title>註冊 - 榛果繽紛樂</title>
+        {{ template "css" . }}
+    </head>
+</html>
+
+<body>
+    <div class="container">
+        <h2 style="pedding:0;margin: 0;">驗證 Email</h2>
+            <div class="text-box">
+                <h4>驗證碼已寄送至<br/>
+                <span style="font-size: 1.6rem;">tingzhen0102sssssss@gmail.com</span><br/>
+                請稍等幾秒</h4>
+            <p>過了很久仍沒有收到？<br />重新整理此頁面以再次發送</p>
+        </div>
+        <label for="code">輸入驗證碼</label>
+        <input type="text" id="code"></input>
+        <input type="submit" class="main-btn" value="送出" style="margin-top: 10px;" onclick="submitCode()">
+    </div>
+</body>
+
+<style>
+    .text-box {
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        margin-bottom: 20px;
+        word-break: break-all;
+    }
+</style>
+
+<script>
+  async function submitCode() {
+    const code = document.getElementById('code').value;
+    if (code.length === 7) {
+      try{
+      const response = await fetch('/api/verify-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          type: "email",
+          dataUUID: "kkk",
+          inputCode: code
+        })
+      })
+      const resData = await response.json();
+      if (response.ok) {
+        alert(resData.message);
+      } else {
+        alert(resData.error);
+      }
+      } catch (error) {
+        console.error(error);
+        alert("發生錯誤，請稍後再試")
+      }
+    } else {
+      alert('請輸入7位數驗證碼');
+    }
+  }
+</script>
