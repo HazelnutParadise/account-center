@@ -26,9 +26,11 @@
                 請稍等幾秒</h4>
             <p>過了很久仍沒有收到？<br />重新整理此頁面以再次發送</p>
         </div>
-        <label for="code">輸入驗證碼</label>
-        <input type="text" id="code"></input>
-        <input type="submit" class="main-btn" value="送出" style="margin-top: 10px;" onclick="submitCode()">
+        <form>
+            <label for="code">輸入驗證碼</label>
+            <input type="text" id="code"></input>
+            <input type="submit" class="main-btn" value="送出" style="margin-top: 10px;" onclick="submitCode(event)">
+        </form>
     </div>
 </body>
 
@@ -46,7 +48,8 @@
 </style>
 
 <script>
-  async function submitCode() {
+  async function submitCode(event) {
+    event.preventDefault();
     const code = document.getElementById('code').value;
     if (code.length === 7) {
       try{
