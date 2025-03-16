@@ -84,12 +84,16 @@ func main() {
 // 首頁 (GET /)
 // -------------------------
 func homeHandler(c *gin.Context) {
+	redirect := c.Query("redirect")
 	if !lib.IsLoggedin(c) {
-		c.Redirect(http.StatusFound, "/login")
+		if redirect != "" {
+			c.Redirect(http.StatusFound, "/login?redirect="+redirect)
+		} else {
+			c.Redirect(http.StatusFound, "/login")
+		}
 		return
 	}
 
-	redirect := c.Query("redirect")
 	if redirect != "" {
 		c.Redirect(http.StatusFound, redirect)
 		return
@@ -193,8 +197,10 @@ func registerHandler(c *gin.Context) {
 func loginPageHandler(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", struct {
 		SupportDocsLink string
+		RedirectUrl     string
 	}{
 		SupportDocsLink: supportDocsLink,
+		RedirectUrl:     c.Query("redirect"),
 	})
 }
 
