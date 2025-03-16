@@ -67,7 +67,7 @@ func main() {
 	r.POST("/login", loginHandler)
 	r.GET("/profile", authRequiredPage(), profilePageHandler) // 需要登入
 	r.POST("/profile", authRequiredPage(), profileEditHandler)
-	r.GET("/logout", logoutHandler)
+	r.GET("/logout", authRequiredPage(), logoutHandler)
 	api.SetRoutes(r.Group("/api"), &registerDataBuf, &emailVerifyCodeBuf)
 
 	// 啟動 Server
@@ -96,10 +96,13 @@ func homeHandler(c *gin.Context) {
 }
 
 func registerPageHandler(c *gin.Context) {
+	redirectUrl := c.Query("redirect")
 	c.HTML(http.StatusOK, "register.html", struct {
 		SupportDocsLink string
+		RedirectUrl     string
 	}{
 		SupportDocsLink: supportDocsLink,
+		RedirectUrl:     redirectUrl,
 	})
 }
 
@@ -174,6 +177,13 @@ func registerHandler(c *gin.Context) {
 
 	tempUserUUID := uuid.New().String()
 	registerDataBuf.Store(tempUserUUID, newUser)
+
+	// 保留重新導向查詢參數
+	redirectUrl := c.Query("redirect")
+	if redirectUrl != "" {
+		http.Redirect(c.Writer, c.Request, "/verify-email?data_uuid="+tempUserUUID+"&redirect="+redirectUrl, http.StatusFound)
+		return
+	}
 
 	http.Redirect(c.Writer, c.Request, "/verify-email?data_uuid="+tempUserUUID, http.StatusFound)
 }

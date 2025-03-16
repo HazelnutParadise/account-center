@@ -64,7 +64,7 @@
       const resData = await response.json();
       if (response.ok) {
         alert(resData.message);
-        window.location.href = "/";
+        redirectWithSearchParamsTo("/")
       } else {
         alert(resData.error);
       }

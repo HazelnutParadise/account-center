@@ -21,7 +21,10 @@ func SendEmailVerifyCode(email string, code string) error {
 	}
 	res, err := http.Post("http://sendemail/SendEmail", "application/json", bytes.NewBuffer(milJson))
 	if err != nil {
-		return err
+		res, err = http.Post("http://192.168.1.164:6661/SendEmail", "application/json", bytes.NewBuffer(milJson))
+		if err != nil {
+			return err
+		}
 	}
 	defer res.Body.Close()
 	return nil
