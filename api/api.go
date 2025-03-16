@@ -53,7 +53,6 @@ func getUserInfo(c *gin.Context) {
 }
 
 func verifyEmail(c *gin.Context, registerDataBuf *sync.Map, emailVerifyCodeBuf *sync.Map) {
-	// todo: 完成驗證並將資料存到資料庫
 	var verifyData = struct {
 		Type      string `json:"type"`
 		DataUUID  string `json:"dataUUID"`
