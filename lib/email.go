@@ -6,7 +6,6 @@ import (
 )
 
 func SendEmailVerifyCode(email string, code string) error {
-	// todo
 	mailStruct := struct {
 		Recipient string `json:"recipient"`
 		Type      string `json:"type"`
