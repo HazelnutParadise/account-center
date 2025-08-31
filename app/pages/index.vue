@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLogtoUser, useLogtoClient, callOnce } from '#imports'; // Add this line if auto-import is disabled\
-import { ref, unref } from 'vue';
+import { ref } from 'vue';
 import { navigateTo } from 'nuxt/app';
 
 const user = useLogtoUser();
@@ -13,8 +13,7 @@ async function signOut() {
 }
 
 await callOnce(async () => {
-    const currentUser = unref(user);
-    if (!currentUser || !currentUser.sub) {
+    if (!user || !user.sub) {
         await navigateTo('/auth/sign-in');
         return;
     }
