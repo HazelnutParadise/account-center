@@ -30,5 +30,20 @@ export default defineNuxtConfig({
       title: '帳號中心 - 榛果繽紛樂'
     }
   },
+  nitro: {
+    routeRules: {
+      '/api/**': {
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        }
+      },
+      '/api/external/**': {
+        proxy: 'https://auth.hazelnut-paradise.com/api/**'
+      }
+    }
+  }
   // ...other configurations
 });
