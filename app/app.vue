@@ -1,14 +1,44 @@
 <!-- app.vue -->
 <template>
-  <div>
-    <header>
-    </header>
-
-    <!-- Nuxt 會自動在這裡渲染 pages/ 的內容 -->
+  <div id="app">
     <NuxtPage />
-
-    <footer>
-      <p>© 2025 我的網站</p>
-    </footer>
   </div>
 </template>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f5f5f5;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+</style>

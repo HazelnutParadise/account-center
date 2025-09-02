@@ -39,9 +39,6 @@ export default defineNuxtConfig({
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, Authorization'
         }
-      },
-      '/api/external/**': {
-        proxy: 'https://auth.hazelnut-paradise.com/api/**'
       }
     }
   }
