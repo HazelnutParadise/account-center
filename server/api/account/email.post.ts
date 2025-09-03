@@ -1,4 +1,4 @@
-// server/api/account/password.post.ts
+// server/api/account/email.post.ts
 import { logtoEventHandler } from '#logto';
 
 export default defineEventHandler(async (event) => {
@@ -14,22 +14,23 @@ export default defineEventHandler(async (event) => {
             throw new Error('LOGTO_ENDPOINT is not configured');
         }
 
-        const { newPassword, verificationRecordId } =
-            await readBody<{ newPassword: string; verificationRecordId: string }>(event);
+        const { email, verificationCode, verificationRecordId } =
+            await readBody<{ email: string; verificationCode: string; verificationRecordId: string }>(event);
 
-        await $fetch(`${endpoint}api/my-account/password`, {
-            method: 'POST',
+        // 使用驗證碼變更Email
+        const updated = await $fetch(`${endpoint}api/my-account`, {
+            method: 'PATCH',
             headers: {
                 Authorization: `Bearer ${token}`,
                 'content-type': 'application/json',
                 'logto-verification-id': verificationRecordId,
             },
-            body: { password: newPassword },
+            body: { email },
         });
 
-        return { ok: true };
+        return updated;
     } catch (error) {
-        console.error('Error in /api/account/password:', error);
+        console.error('Error in /api/account/email:', error);
         throw createError({
             statusCode: 500,
             statusMessage: error instanceof Error ? error.message : 'Internal Server Error'

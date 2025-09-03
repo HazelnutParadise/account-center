@@ -1,4 +1,4 @@
-// server/api/account/password.post.ts
+// server/api/account/verification/phone.post.ts
 import { logtoEventHandler } from '#logto';
 
 export default defineEventHandler(async (event) => {
@@ -14,22 +14,24 @@ export default defineEventHandler(async (event) => {
             throw new Error('LOGTO_ENDPOINT is not configured');
         }
 
-        const { newPassword, verificationRecordId } =
-            await readBody<{ newPassword: string; verificationRecordId: string }>(event);
+        const { phone } = await readBody<{ phone: string }>(event);
 
-        await $fetch(`${endpoint}api/my-account/password`, {
+        // 請求驗證碼到新手機
+        const res = await $fetch(`${endpoint}api/verifications/verification-code`, {
             method: 'POST',
             headers: {
                 Authorization: `Bearer ${token}`,
-                'content-type': 'application/json',
-                'logto-verification-id': verificationRecordId,
+                'content-type': 'application/json'
             },
-            body: { password: newPassword },
+            body: {
+                phone,
+                type: 'phone'
+            },
         });
 
-        return { ok: true };
+        return res;
     } catch (error) {
-        console.error('Error in /api/account/password:', error);
+        console.error('Error in /api/account/verification/phone:', error);
         throw createError({
             statusCode: 500,
             statusMessage: error instanceof Error ? error.message : 'Internal Server Error'

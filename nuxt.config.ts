@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   modules: ['@logto/nuxt'],
+  components: true, // 啟用自動組件發現
   runtimeConfig: {
     logto: {
       endpoint: process.env.NUXT_LOGTO_ENDPOINT,
