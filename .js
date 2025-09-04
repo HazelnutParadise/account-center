@@ -30,8 +30,7 @@ const enableAccountAPI = await apiClient.PATCH(
                         profile: "Edit"
                     },
                     webauthnRelatedOrigins: ["https://account.hazelnut-paradise.com"]
-                },
-                
+                    }
             }
         }
     }
