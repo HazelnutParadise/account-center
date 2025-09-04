@@ -17,22 +17,16 @@ console.log(accountApiStatus.data);
 const enableAccountAPI = await apiClient.PATCH(
     '/api/account-center',
     {
-        requestBody: {
-            content: {
-                "application/json": {
-                    enabled: true,
-                    fields: {
-                        username: "Edit",
-                        email: "Edit",
-                        phone: "Edit",
-                        name: "Edit",
-                        avatar: "Edit",
-                        profile: "Edit"
-                    },
-                    webauthnRelatedOrigins: ["https://account.hazelnut-paradise.com"]
-                    }
-            }
-        }
+        enabled: true,
+        fields: {
+            username: "Edit",
+            email: "Edit",
+            phone: "Edit",
+            name: "Edit",
+            avatar: "Edit",
+            profile: "Edit"
+        },
+        webauthnRelatedOrigins: ["https://account.hazelnut-paradise.com"]
     }
 );
 console.log(enableAccountAPI);
