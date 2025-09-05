@@ -10,8 +10,9 @@ const SignOut = ({ onSignOut }: Props) => {
       onClick={() => {
         onSignOut();
       }}
+      className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
     >
-      Sign Out
+      登出
     </button>
   );
 };
