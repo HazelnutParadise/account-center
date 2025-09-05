@@ -14,19 +14,46 @@ const { apiClient, clientCredentials } = createManagementApi('default', {
 const accountApiStatus = await apiClient.GET('/api/account-center');
 console.log(accountApiStatus.data);
 
-const enableAccountAPI = await apiClient.PATCH(
-    '/api/account-center',
+const accessToken = await clientCredentials.getAccessToken();
+console.log(accessToken);
+
+const enableAccountAPIResponse = await fetch(
+    `${process.env.LOGTO_ENDPOINT}/api/account-center`,
     {
-        enabled: true,
-        fields: {
-            username: "Edit",
-            email: "Edit",
-            phone: "Edit",
-            name: "Edit",
-            avatar: "Edit",
-            profile: "Edit"
+        method: 'PATCH',
+        headers: {
+            'Authorization': `Bearer ${accessToken.value}`,
+            'Content-Type': 'application/json',
         },
-        webauthnRelatedOrigins: ["https://account.hazelnut-paradise.com"]
+        body: JSON.stringify({
+            enabled: true,
+            fields: {
+                name: "Edit",
+                avatar: "Edit",
+                profile: "Edit",
+                email: "Edit",
+                phone: "Edit",
+                password: "Edit",
+                username: "Edit",
+                "application/json": JSON.stringify({
+                    enabled: true,
+                    fields: {
+                        name: "Edit",
+                        avatar: "Edit",
+                        profile: "Edit",
+                        email: "Edit",
+                        phone: "Edit",
+                        password: "Edit",
+                        username: "Edit",
+                        social: "Edit",
+                        customData: "Edit",
+                        mfa: "Edit",
+                    },
+                    webauthnRelatedOrigins: ["*"]
+                })
+            }
+        }),
     }
+
 );
-console.log(enableAccountAPI);
+console.log(await enableAccountAPIResponse.json());
