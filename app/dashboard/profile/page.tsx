@@ -140,7 +140,7 @@ const updateProfile = async (formData: FormData) => {
   redirect('/dashboard/profile?success=true');
 };
 
-const Profile = async({ searchParams }: { searchParams?: { success?: string } }) => {
+const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: string }> }) => {
   const { isAuthenticated } = await getLogtoContext(logtoConfig);
   let accountInfo: AccountInfo | { error: string } | null = null;
 
@@ -153,6 +153,8 @@ const Profile = async({ searchParams }: { searchParams?: { success?: string } })
     }
   }
 
+  const params = await searchParams;
+
   return (
     <div className="max-w-4xl mx-auto">
       <header className="mb-8">
@@ -164,7 +166,7 @@ const Profile = async({ searchParams }: { searchParams?: { success?: string } })
         </p>
       </header>
 
-      {searchParams?.success && (
+      {params?.success && (
         <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
           <div className="flex items-center">
             <span className="text-2xl mr-3">✅</span>

@@ -1,8 +1,12 @@
-import { getLogtoContext, signOut, getAccessTokenRSC } from '@logto/next/server-actions';
-import SignOut from '../sign-out';
-import { logtoConfig, getAccountInfo } from '../logto';
-import Image from 'next/image';
-import Link from 'next/link';
+import {
+  getLogtoContext,
+  signOut,
+  getAccessTokenRSC,
+} from "@logto/next/server-actions";
+import SignOut from "../sign-out";
+import { logtoConfig, getAccountInfo } from "../logto";
+import Image from "next/image";
+import Link from "next/link";
 
 interface AccountInfo {
   id: string;
@@ -20,7 +24,7 @@ interface AccountInfo {
   phone?: string;
 }
 
-const Dashboard = async() => {
+const Dashboard = async () => {
   const { isAuthenticated, claims } = await getLogtoContext(logtoConfig);
   let accountInfo: AccountInfo | { error: string } | null = null;
   if (isAuthenticated) {
@@ -28,7 +32,7 @@ const Dashboard = async() => {
     try {
       accountInfo = await getAccountInfo(accessToken);
     } catch {
-      accountInfo = { error: '取得帳號資訊失敗' };
+      accountInfo = { error: "取得帳號資訊失敗" };
     }
   }
 
@@ -50,7 +54,9 @@ const Dashboard = async() => {
             <div className="flex items-center space-x-4">
               <div className="flex-shrink-0">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  {claims?.name?.charAt(0) || claims?.username?.charAt(0) || 'U'}
+                  {claims?.name?.charAt(0) ||
+                    claims?.username?.charAt(0) ||
+                    "U"}
                 </div>
               </div>
               <div className="flex-1">
@@ -71,7 +77,7 @@ const Dashboard = async() => {
               </Link>
               <SignOut
                 onSignOut={async () => {
-                  'use server';
+                  "use server";
                   await signOut(logtoConfig);
                 }}
               />
@@ -136,12 +142,10 @@ const Dashboard = async() => {
         {/* 帳號資訊卡片 */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-            <h3 className="text-xl font-semibold text-white">
-              帳號資訊
-            </h3>
+            <h3 className="text-xl font-semibold text-white">帳號資訊</h3>
           </div>
           <div className="p-6">
-            {accountInfo && 'error' in accountInfo ? (
+            {accountInfo && "error" in accountInfo ? (
               <div className="text-center py-8">
                 <div className="text-red-500 text-lg font-medium mb-2">
                   取得帳號資訊失敗
@@ -176,14 +180,18 @@ const Dashboard = async() => {
 
                   <div className="grid grid-cols-1 gap-3">
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">用戶 ID</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        用戶 ID
+                      </div>
                       <div className="font-mono text-sm text-gray-900 dark:text-white">
                         {accountInfo.id}
                       </div>
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">應用程式 ID</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        應用程式 ID
+                      </div>
                       <div className="font-mono text-sm text-gray-900 dark:text-white">
                         {accountInfo.applicationId}
                       </div>
@@ -196,58 +204,78 @@ const Dashboard = async() => {
                   <div className="grid grid-cols-1 gap-3">
                     {accountInfo.email && (
                       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">電子郵件</div>
-                        <div className="text-gray-900 dark:text-white">{accountInfo.email}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          電子郵件
+                        </div>
+                        <div className="text-gray-900 dark:text-white">
+                          {accountInfo.email}
+                        </div>
                       </div>
                     )}
 
                     {accountInfo.phone && (
                       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                        <div className="text-sm text-gray-500 dark:text-gray-400">電話號碼</div>
-                        <div className="text-gray-900 dark:text-white">{accountInfo.phone}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          電話號碼
+                        </div>
+                        <div className="text-gray-900 dark:text-white">
+                          {accountInfo.phone}
+                        </div>
                       </div>
                     )}
 
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">最後登入</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        最後登入
+                      </div>
                       <div className="text-gray-900 dark:text-white">
-                        {new Date(accountInfo.lastSignInAt).toLocaleString('zh-TW')}
+                        {new Date(accountInfo.lastSignInAt).toLocaleString(
+                          "zh-TW"
+                        )}
                       </div>
                     </div>
 
                     <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
-                      <div className="text-sm text-gray-500 dark:text-gray-400">帳號創建</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                        帳號創建
+                      </div>
                       <div className="text-gray-900 dark:text-white">
-                        {new Date(accountInfo.createdAt).toLocaleString('zh-TW')}
+                        {new Date(accountInfo.createdAt).toLocaleString(
+                          "zh-TW"
+                        )}
                       </div>
                     </div>
                   </div>
 
                   {/* 狀態標籤 */}
                   <div className="flex flex-wrap gap-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      accountInfo.isSuspended
-                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                    }`}>
-                      {accountInfo.isSuspended ? '已停權' : '正常'}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        accountInfo.isSuspended
+                          ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      }`}
+                    >
+                      {accountInfo.isSuspended ? "已停權" : "正常"}
                     </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      accountInfo.hasPassword
-                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                    }`}>
-                      {accountInfo.hasPassword ? '有密碼' : '無密碼'}
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        accountInfo.hasPassword
+                          ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                          : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                      }`}
+                    >
+                      {accountInfo.hasPassword ? "有密碼" : "無密碼"}
                     </span>
-                    {!accountInfo.hasPassword && (
-                      <Link
-                        href="/dashboard/security"
-                        className="px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 hover:bg-orange-200 dark:hover:bg-orange-800 transition-colors"
-                      >
-                        設定密碼
-                      </Link>
-                    )}
                   </div>
+                  {!accountInfo.hasPassword && (
+                    <Link
+                      href="/dashboard/security"
+                      className="inline-flex items-center px-4 py-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white text-sm font-semibold rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                    >
+                      設定密碼
+                    </Link>
+                  )}
                 </div>
               </div>
             ) : (

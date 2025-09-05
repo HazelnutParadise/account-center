@@ -1,5 +1,35 @@
 import { getLogtoContext, getAccessTokenRSC } from '@logto/next/server-actions';
-import { logtoConfig, getAccountInfo } from '../../logto';
+import { logtoConfig, getAccountInfo, setPassword } from '../../logto';
+import { redirect } from 'next/navigation';
+
+const setUserPassword = async (formData: FormData) => {
+  'use server';
+
+  const password = formData.get('password') as string;
+  const confirmPassword = formData.get('confirmPassword') as string;
+
+  if (!password || !confirmPassword) {
+    redirect('/dashboard/security?error=missing_fields');
+  }
+
+  if (password !== confirmPassword) {
+    redirect('/dashboard/security?error=password_mismatch');
+  }
+
+  if (password.length < 8) {
+    redirect('/dashboard/security?error=password_too_short');
+  }
+
+  try {
+    const accessToken = await getAccessTokenRSC(logtoConfig);
+    await setPassword(accessToken, password);
+  } catch (error) {
+    console.error('設定密碼失敗:', error);
+    redirect('/dashboard/security?error=set_password_failed');
+  }
+
+  redirect('/dashboard/security?success=true');
+};
 
 interface AccountInfo {
   id: string;
@@ -17,7 +47,7 @@ interface AccountInfo {
   phone?: string;
 }
 
-const Security = async() => {
+const Security = async({ searchParams }: { searchParams?: Promise<{ success?: string; error?: string }> }) => {
   const { isAuthenticated } = await getLogtoContext(logtoConfig);
   let accountInfo: AccountInfo | { error: string } | null = null;
 
@@ -30,6 +60,8 @@ const Security = async() => {
     }
   }
 
+  const params = await searchParams;
+
   return (
     <div className="max-w-4xl mx-auto">
       <header className="mb-8">
@@ -40,6 +72,44 @@ const Security = async() => {
           管理您的密碼和安全選項
         </p>
       </header>
+
+      {params?.success && (
+        <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <div className="flex items-center">
+            <span className="text-2xl mr-3">✅</span>
+            <div>
+              <h4 className="text-green-800 dark:text-green-200 font-semibold">
+                密碼設定成功
+              </h4>
+              <p className="text-green-600 dark:text-green-300 text-sm">
+                您的密碼已成功設定
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {params?.error && (
+        <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex items-center">
+            <span className="text-2xl mr-3">❌</span>
+            <div>
+              <h4 className="text-red-800 dark:text-red-200 font-semibold">
+                {params.error === 'password_mismatch' && '密碼確認不相符'}
+                {params.error === 'missing_fields' && '請填寫所有必填欄位'}
+                {params.error === 'password_too_short' && '密碼長度至少需要 8 個字符'}
+                {params.error === 'set_password_failed' && '設定密碼失敗'}
+              </h4>
+              <p className="text-red-600 dark:text-red-300 text-sm">
+                {params.error === 'password_mismatch' && '請確認新密碼和確認密碼相同'}
+                {params.error === 'missing_fields' && '請填寫密碼和確認密碼欄位'}
+                {params.error === 'password_too_short' && '密碼長度至少需要 8 個字符'}
+                {params.error === 'set_password_failed' && '設定密碼時發生錯誤，請稍後再試'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {accountInfo && 'error' in accountInfo ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
@@ -113,7 +183,7 @@ const Security = async() => {
                       </div>
                       <button
                         type="submit"
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                        className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                       >
                         更新密碼
                       </button>
@@ -140,13 +210,14 @@ const Security = async() => {
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                       設定密碼
                     </h4>
-                    <form className="space-y-4">
+                    <form action={setUserPassword} className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           新密碼
                         </label>
                         <input
                           type="password"
+                          name="password"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="請輸入新密碼"
                         />
@@ -157,13 +228,14 @@ const Security = async() => {
                         </label>
                         <input
                           type="password"
+                          name="confirmPassword"
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="請再次輸入新密碼"
                         />
                       </div>
                       <button
                         type="submit"
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                        className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                       >
                         設定密碼
                       </button>

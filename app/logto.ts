@@ -1,17 +1,17 @@
 import { LogtoNextConfig } from '@logto/next';
 
 export const logtoConfig: LogtoNextConfig = {
-  endpoint: process.env.LOGTO_ENDPOINT,
-  appId: process.env.LOGTO_APP_ID,
-  appSecret: process.env.LOGTO_APP_SECRET,
-  baseUrl: process.env.LOGTO_BASE_URL,
-  cookieSecret: process.env.LOGTO_COOKIE_SECRET,
+  endpoint: process.env.LOGTO_ENDPOINT!,
+  appId: process.env.LOGTO_APP_ID!,
+  appSecret: process.env.LOGTO_APP_SECRET!,
+  baseUrl: process.env.LOGTO_BASE_URL!,
+  cookieSecret: process.env.LOGTO_COOKIE_SECRET!,
   cookieSecure: process.env.NODE_ENV === 'production',
   scopes: ['openid', 'profile', 'email', 'phone', 'custom_data'],
 };  
 
 export const getAccountInfo = async (accessToken: string) => {
-  const res = await fetch('https://auth.hazelnut-paradise.com/api/my-account', {
+  const res = await fetch(`${logtoConfig.endpoint}/api/my-account`, {
     headers: {
       authorization: `Bearer ${accessToken}`,
     },
@@ -28,7 +28,7 @@ export const updateAccountInfo = async (accessToken: string, data: {
   avatar?: string;
   customData?: Record<string, unknown>;
 }) => {
-  const res = await fetch('https://auth.hazelnut-paradise.com/api/my-account', {
+  const res = await fetch(`${logtoConfig.endpoint}/api/my-account`, {
     method: 'PATCH',
     headers: {
       authorization: `Bearer ${accessToken}`,
@@ -59,7 +59,7 @@ export const updateProfileInfo = async (accessToken: string, data: {
     country?: string;
   };
 }) => {
-  const res = await fetch('https://auth.hazelnut-paradise.com/api/my-account/profile', {
+  const res = await fetch(`${logtoConfig.endpoint}/api/my-account/profile`, {
     method: 'PATCH',
     headers: {
       authorization: `Bearer ${accessToken}`,
@@ -68,5 +68,18 @@ export const updateProfileInfo = async (accessToken: string, data: {
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('更新個人資料失敗');
+  return res.json();
+};
+
+export const setPassword = async (accessToken: string, password: string) => {
+  const res = await fetch(`${logtoConfig.endpoint}/api/my-account/password`, {
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ password }),
+  });
+  if (!res.ok) throw new Error('設定密碼失敗');
   return res.json();
 };
