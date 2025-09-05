@@ -1,7 +1,7 @@
 import { getLogtoContext, signIn, signOut,getAccessToken } from '@logto/next/server-actions';
 import SignIn from './sign-in';
 import SignOut from './sign-out';
-import { logtoConfig } from './logto';
+import { logtoConfig,getAccountInfo } from './logto';
 
 const Home = async() => {
   const { isAuthenticated, claims } = await getLogtoContext(logtoConfig);
@@ -9,8 +9,6 @@ const Home = async() => {
   if (isAuthenticated) {
     const accessToken = await getAccessToken(logtoConfig);
     try {
-      // @ts-ignore
-      const { getAccountInfo } = await import('./logto');
       accountInfo = await getAccountInfo(accessToken);
     } catch (e) {
       accountInfo = { error: '取得帳號資訊失敗' };

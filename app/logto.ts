@@ -9,7 +9,7 @@ export const logtoConfig: LogtoNextConfig = {
   cookieSecure: process.env.NODE_ENV === 'production',
 };
 
-const getAccountInfo = async (accessToken: string) => {
+export const getAccountInfo = async (accessToken: string) => {
   const res = await fetch('https://auth.hazelnut-paradise.com/api/my-account', {
     headers: {
       authorization: `Bearer ${accessToken}`,
