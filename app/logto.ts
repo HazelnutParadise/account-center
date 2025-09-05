@@ -7,6 +7,7 @@ export const logtoConfig: LogtoNextConfig = {
   baseUrl: process.env.LOGTO_BASE_URL,
   cookieSecret: process.env.LOGTO_COOKIE_SECRET,
   cookieSecure: process.env.NODE_ENV === 'production',
+  scopes: ['openid', 'profile', 'email', 'phone', 'custom_data'],
 };
 
 export const getAccountInfo = async (accessToken: string) => {
