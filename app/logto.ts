@@ -80,6 +80,11 @@ export const setPassword = async (accessToken: string, password: string) => {
     },
     body: JSON.stringify({ password }),
   });
-  if (!res.ok) throw new Error('設定密碼失敗');
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => 'Unknown error');
+    throw new Error(`${res.status}: ${errorText}`);
+  }
+
   return res.json();
 };

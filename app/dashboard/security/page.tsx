@@ -25,7 +25,18 @@ const setUserPassword = async (formData: FormData) => {
     await setPassword(accessToken, password);
   } catch (error) {
     console.error('設定密碼失敗:', error);
-    redirect('/dashboard/security?error=set_password_failed');
+    // 提供更詳細的錯誤信息
+    let errorType = 'set_password_failed';
+    if (error instanceof Error) {
+      if (error.message.includes('401') || error.message.includes('403')) {
+        errorType = 'auth_failed';
+      } else if (error.message.includes('400')) {
+        errorType = 'invalid_password';
+      } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        errorType = 'network_error';
+      }
+    }
+    redirect(`/dashboard/security?error=${errorType}`);
   }
 
   redirect('/dashboard/security?success=true');
@@ -99,12 +110,18 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
                 {params.error === 'missing_fields' && '請填寫所有必填欄位'}
                 {params.error === 'password_too_short' && '密碼長度至少需要 8 個字符'}
                 {params.error === 'set_password_failed' && '設定密碼失敗'}
+                {params.error === 'auth_failed' && '認證失敗'}
+                {params.error === 'invalid_password' && '密碼不符合要求'}
+                {params.error === 'network_error' && '網路連接錯誤'}
               </h4>
               <p className="text-red-600 dark:text-red-300 text-sm">
                 {params.error === 'password_mismatch' && '請確認新密碼和確認密碼相同'}
                 {params.error === 'missing_fields' && '請填寫密碼和確認密碼欄位'}
                 {params.error === 'password_too_short' && '密碼長度至少需要 8 個字符'}
-                {params.error === 'set_password_failed' && '設定密碼時發生錯誤，請稍後再試'}
+                {params.error === 'set_password_failed' && '設定密碼時發生未知錯誤，請稍後再試'}
+                {params.error === 'auth_failed' && '認證已過期，請重新登入後再試'}
+                {params.error === 'invalid_password' && '密碼不符合系統要求，請檢查密碼強度'}
+                {params.error === 'network_error' && '網路連接失敗，請檢查網路連接後再試'}
               </p>
             </div>
           </div>
