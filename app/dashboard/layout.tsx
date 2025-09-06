@@ -65,25 +65,25 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
             <nav className="space-y-2">
               <Link
                 href="/dashboard"
-                className="block px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 📊 總覽
               </Link>
               <Link
                 href="/dashboard/profile"
-                className="block px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 👤 個人資料
               </Link>
               <Link
                 href="/dashboard/security"
-                className="block px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 🔒 安全設定
               </Link>
               <Link
                 href="/dashboard/settings"
-                className="block px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
                 ⚙️ 偏好設定
               </Link>
