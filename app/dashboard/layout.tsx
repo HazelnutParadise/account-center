@@ -1,5 +1,4 @@
-import { getLogtoContext } from '@logto/next/server-actions';
-import { logtoConfig } from '../logto';
+import { getLogtoContext } from '../logto';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ReactNode } from 'react';
@@ -9,7 +8,7 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
-  const { isAuthenticated } = await getLogtoContext(logtoConfig);
+  const { isAuthenticated } = await getLogtoContext();
 
   if (!isAuthenticated) {
     redirect('/');

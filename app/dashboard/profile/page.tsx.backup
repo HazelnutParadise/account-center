@@ -381,314 +381,306 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
             </div>
           ) : (
             /* 編輯模式 */
-            <form action={updateProfile} className="space-y-6">
-              {/* 基本資訊編輯 */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">基本資訊</h3>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* 頭像區域 */}
-                    <div className="md:col-span-2 flex items-center space-x-6">
-                      <div className="flex-shrink-0">
-                        <Image
-                          src={accountInfo.avatar || '/placeholder-avatar.png'}
-                          alt="Avatar"
-                          width={100}
-                          height={100}
-                          className="rounded-full border-4 border-gray-200 dark:border-gray-600"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                          頭像 URL
-                        </h4>
-                        <input
-                          type="url"
-                          name="avatar"
-                          defaultValue={accountInfo.avatar || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="https://example.com/avatar.jpg"
-                        />
-                      </div>
-                    </div>
-
-                    {/* 姓名 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        姓名
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        defaultValue={accountInfo.name || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入您的姓名"
-                      />
-                    </div>
-
-                    {/* 用戶名 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        用戶名 <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="username"
-                        defaultValue={accountInfo.username}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入用戶名"
-                      />
-                    </div>
+        <form action={updateProfile} className="space-y-6">
+          {/* 基本資訊編輯 */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+              <h3 className="text-xl font-semibold text-white">
+                基本資訊
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 頭像區域 */}
+                <div className="md:col-span-2 flex items-center space-x-6">
+                  <div className="flex-shrink-0">
+                    <Image
+                      src={accountInfo.avatar}
+                      alt="Avatar"
+                      width={100}
+                      height={100}
+                      className="rounded-full border-4 border-gray-200 dark:border-gray-600"
+                    />
                   </div>
-                </div>
-              </div>
-
-              {/* 個人資料編輯 */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">個人資料</h3>
-                </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* 姓氏 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        姓氏
-                      </label>
-                      <input
-                        type="text"
-                        name="familyName"
-                        defaultValue={accountInfo.profile?.familyName || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入姓氏"
-                      />
-                    </div>
-
-                    {/* 名字 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        名字
-                      </label>
-                      <input
-                        type="text"
-                        name="givenName"
-                        defaultValue={accountInfo.profile?.givenName || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入名字"
-                      />
-                    </div>
-
-                    {/* 中間名 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        中間名
-                      </label>
-                      <input
-                        type="text"
-                        name="middleName"
-                        defaultValue={accountInfo.profile?.middleName || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入中間名"
-                      />
-                    </div>
-
-                    {/* 暱稱 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        暱稱
-                      </label>
-                      <input
-                        type="text"
-                        name="nickname"
-                        defaultValue={accountInfo.profile?.nickname || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入暱稱"
-                      />
-                    </div>
-
-                    {/* 個人頁面 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        個人頁面 URL
-                      </label>
-                      <input
-                        type="url"
-                        name="profile"
-                        defaultValue={accountInfo.profile?.profile || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="https://example.com/profile"
-                      />
-                    </div>
-
-                    {/* 個人網站 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        個人網站
-                      </label>
-                      <input
-                        type="url"
-                        name="website"
-                        defaultValue={accountInfo.profile?.website || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="https://example.com"
-                      />
-                    </div>
-
-                    {/* 性別 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        性別
-                      </label>
-                      <select
-                        name="gender"
-                        defaultValue={accountInfo.profile?.gender || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="">請選擇</option>
-                        <option value="male">男性</option>
-                        <option value="female">女性</option>
-                        <option value="other">其他</option>
-                      </select>
-                    </div>
-
-                    {/* 生日 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        生日
-                      </label>
-                      <input
-                        type="date"
-                        name="birthdate"
-                        defaultValue={accountInfo.profile?.birthdate || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      />
-                    </div>
-
-                    {/* 時區 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        時區
-                      </label>
-                      <input
-                        type="text"
-                        name="zoneinfo"
-                        defaultValue={accountInfo.profile?.zoneinfo || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="Asia/Taipei"
-                      />
-                    </div>
-
-                    {/* 語言 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        語言
-                      </label>
-                      <input
-                        type="text"
-                        name="locale"
-                        defaultValue={accountInfo.profile?.locale || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="zh-TW"
-                      />
-                    </div>
-                  </div>
-
-                  {/* 地址資訊 */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                      地址資訊
+                  <div className="flex-1">
+                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      個人頭像
                     </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          街道地址
-                        </label>
-                        <input
-                          type="text"
-                          name="streetAddress"
-                          defaultValue={accountInfo.profile?.address?.streetAddress || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入街道地址"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          城市
-                        </label>
-                        <input
-                          type="text"
-                          name="locality"
-                          defaultValue={accountInfo.profile?.address?.locality || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入城市"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          地區/州
-                        </label>
-                        <input
-                          type="text"
-                          name="region"
-                          defaultValue={accountInfo.profile?.address?.region || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入地區"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          郵遞區號
-                        </label>
-                        <input
-                          type="text"
-                          name="postalCode"
-                          defaultValue={accountInfo.profile?.address?.postalCode || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入郵遞區號"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          國家
-                        </label>
-                        <input
-                          type="text"
-                          name="country"
-                          defaultValue={accountInfo.profile?.address?.country || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入國家"
-                        />
-                      </div>
-                    </div>
+                    <input
+                      type="url"
+                      name="avatar"
+                      defaultValue={accountInfo.avatar}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="頭像URL"
+                    />
                   </div>
+                </div>
+
+                {/* 姓名 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    姓名
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    defaultValue={accountInfo.name}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="請輸入您的姓名"
+                  />
+                </div>
+
+                {/* 用戶名 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    用戶名
+                  </label>
+                  <input
+                    type="text"
+                    name="username"
+                    defaultValue={accountInfo.username}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="請輸入用戶名"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 個人資料編輯 */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
+              <h3 className="text-xl font-semibold text-white">
+                個人資料
+              </h3>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* 名稱欄位 */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    姓氏 (Family Name)
+                  </label>
+                  <input
+                    type="text"
+                    name="familyName"
+                    defaultValue={accountInfo.profile?.familyName || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="請輸入姓氏"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    名字 (Given Name)
+                  </label>
+                  <input
+                    type="text"
+                    name="givenName"
+                    defaultValue={accountInfo.profile?.givenName || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="請輸入名字"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    中間名 (Middle Name)
+                  </label>
+                  <input
+                    type="text"
+                    name="middleName"
+                    defaultValue={accountInfo.profile?.middleName || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="請輸入中間名"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    暱稱 (Nickname)
+                  </label>
+                  <input
+                    type="text"
+                    name="nickname"
+                    defaultValue={accountInfo.profile?.nickname || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="請輸入暱稱"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    個人頁面 URL
+                  </label>
+                  <input
+                    type="url"
+                    name="profile"
+                    defaultValue={accountInfo.profile?.profile || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="https://example.com/profile"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    個人網站
+                  </label>
+                  <input
+                    type="url"
+                    name="website"
+                    defaultValue={accountInfo.profile?.website || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="https://example.com"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    性別
+                  </label>
+                  <select
+                    name="gender"
+                    defaultValue={accountInfo.profile?.gender || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">請選擇</option>
+                    <option value="male">男性</option>
+                    <option value="female">女性</option>
+                    <option value="other">其他</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    生日
+                  </label>
+                  <input
+                    type="date"
+                    name="birthdate"
+                    defaultValue={accountInfo.profile?.birthdate || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    時區
+                  </label>
+                  <input
+                    type="text"
+                    name="zoneinfo"
+                    defaultValue={accountInfo.profile?.zoneinfo || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="Asia/Taipei"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    語言
+                  </label>
+                  <input
+                    type="text"
+                    name="locale"
+                    defaultValue={accountInfo.profile?.locale || ''}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="zh-TW"
+                  />
                 </div>
               </div>
 
-              {/* 提交按鈕 */}
-              <div className="flex justify-end space-x-4">
-                <Link
-                  href="/dashboard/profile"
-                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  取消
-                </Link>
-                <button
-                  type="submit"
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  儲存變更
-                </button>
+              {/* 地址資訊 */}
+              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
+                <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  地址資訊
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      街道地址
+                    </label>
+                    <input
+                      type="text"
+                      name="streetAddress"
+                      defaultValue={accountInfo.profile?.address?.streetAddress || ''}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="請輸入街道地址"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      城市
+                    </label>
+                    <input
+                      type="text"
+                      name="locality"
+                      defaultValue={accountInfo.profile?.address?.locality || ''}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="請輸入城市"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      地區/州
+                    </label>
+                    <input
+                      type="text"
+                      name="region"
+                      defaultValue={accountInfo.profile?.address?.region || ''}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="請輸入地區"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      郵遞區號
+                    </label>
+                    <input
+                      type="text"
+                      name="postalCode"
+                      defaultValue={accountInfo.profile?.address?.postalCode || ''}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="請輸入郵遞區號"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      國家
+                    </label>
+                    <input
+                      type="text"
+                      name="country"
+                      defaultValue={accountInfo.profile?.address?.country || ''}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                      placeholder="請輸入國家"
+                    />
+                  </div>
+                </div>
               </div>
-            </form>
-          )}
-        </>
+            </div>
+          </div>
+
+          {/* 提交按鈕 */}
+          <div className="flex justify-end space-x-4">
+            <Link
+              href="/dashboard"
+              className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              取消
+            </Link>
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+            >
+              儲存變更
+            </button>
+          </div>
+        </form>
       ) : (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>

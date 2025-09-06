@@ -1,36 +1,19 @@
 import {
   getLogtoContext,
   signOut,
-  getAccessTokenRSC,
-} from "@logto/next/server-actions";
+  getAccountInfo,
+  AccountInfo
+} from "../logto";
 import SignOut from "../sign-out";
-import { logtoConfig, getAccountInfo } from "../logto";
 import Image from "next/image";
 import Link from "next/link";
 
-interface AccountInfo {
-  id: string;
-  username: string;
-  name: string;
-  avatar: string;
-  lastSignInAt: number;
-  createdAt: number;
-  updatedAt: number;
-  profile: Record<string, unknown>;
-  applicationId: string;
-  isSuspended: boolean;
-  hasPassword: boolean;
-  email?: string;
-  phone?: string;
-}
-
 const Dashboard = async () => {
-  const { isAuthenticated, claims } = await getLogtoContext(logtoConfig);
+  const { isAuthenticated, claims } = await getLogtoContext();
   let accountInfo: AccountInfo | { error: string } | null = null;
   if (isAuthenticated) {
-    const accessToken = await getAccessTokenRSC(logtoConfig);
     try {
-      accountInfo = await getAccountInfo(accessToken);
+      accountInfo = await getAccountInfo();
     } catch {
       accountInfo = { error: "取得帳號資訊失敗" };
     }
@@ -78,7 +61,7 @@ const Dashboard = async () => {
               <SignOut
                 onSignOut={async () => {
                   "use server";
-                  await signOut(logtoConfig);
+                  await signOut();
                 }}
               />
             </div>

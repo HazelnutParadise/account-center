@@ -1,10 +1,9 @@
-import { getLogtoContext, signIn } from '@logto/next/server-actions';
-import { logtoConfig } from './logto';
+import { getLogtoContext, signIn } from './logto';
 import { redirect } from 'next/navigation';
 import SignIn from './sign-in';
 
 const Home = async() => {
-  const { isAuthenticated } = await getLogtoContext(logtoConfig);
+  const { isAuthenticated } = await getLogtoContext();
 
   if (isAuthenticated) {
     redirect('/dashboard');
@@ -38,7 +37,7 @@ const Home = async() => {
             <SignIn
               onSignIn={async () => {
                 'use server';
-                await signIn(logtoConfig);
+                await signIn();
               }}
             />
           </div>

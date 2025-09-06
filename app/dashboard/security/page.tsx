@@ -1,5 +1,4 @@
-import { getLogtoContext, getAccessTokenRSC } from '@logto/next/server-actions';
-import { logtoConfig, getAccountInfo, setPassword } from '../../logto';
+import { getLogtoContext, getAccountInfo, setPassword, AccountInfo } from '../../logto';
 import { redirect } from 'next/navigation';
 
 const setUserPassword = async (formData: FormData) => {
@@ -21,8 +20,7 @@ const setUserPassword = async (formData: FormData) => {
   }
 
   try {
-    const accessToken = await getAccessTokenRSC(logtoConfig);
-    await setPassword(accessToken, password);
+    await setPassword(password);
   } catch (error) {
     console.error('設定密碼失敗:', error);
     // 提供更詳細的錯誤信息
@@ -42,30 +40,13 @@ const setUserPassword = async (formData: FormData) => {
   redirect('/dashboard/security?success=true');
 };
 
-interface AccountInfo {
-  id: string;
-  username: string;
-  name: string;
-  avatar: string;
-  lastSignInAt: number;
-  createdAt: number;
-  updatedAt: number;
-  profile: Record<string, unknown>;
-  applicationId: string;
-  isSuspended: boolean;
-  hasPassword: boolean;
-  email?: string;
-  phone?: string;
-}
-
 const Security = async({ searchParams }: { searchParams?: Promise<{ success?: string; error?: string }> }) => {
-  const { isAuthenticated } = await getLogtoContext(logtoConfig);
+  const { isAuthenticated } = await getLogtoContext();
   let accountInfo: AccountInfo | { error: string } | null = null;
 
   if (isAuthenticated) {
-    const accessToken = await getAccessTokenRSC(logtoConfig);
     try {
-      accountInfo = await getAccountInfo(accessToken);
+      accountInfo = await getAccountInfo();
     } catch {
       accountInfo = { error: '取得帳號資訊失敗' };
     }
