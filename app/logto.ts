@@ -9,6 +9,53 @@ import {
 
 import { createManagementApi } from "@logto/api/management";
 
+// 社群身分結構 - 基於 Logto API 實際響應結構
+export interface SocialIdentityData {
+  identity: {
+    userId: string;
+    details?: {
+      id: string;
+      name: string;
+      email: string;
+      avatar: string;
+      rawData: {
+        sub: string;
+        name: string;
+        email: string;
+        picture: string;
+        given_name: string;
+        family_name: string;
+        email_verified: boolean;
+      };
+    };
+  };
+  target: string;
+  tokenSecret?: {
+    tenantId: string;
+    id: string;
+    userId: string;
+    type: string;
+    metadata: Record<string, unknown>;
+    target: string;
+  };
+}
+
+export interface SSOIdentityData {
+  id: string;
+  userId: string;
+  issuer: string;
+  identityId: string;
+  detail: Record<string, unknown>;
+  target: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface AllIdentitiesResponse {
+  socialIdentities: SocialIdentityData[];
+  ssoIdentities: SSOIdentityData[];
+}
+
 // Logto API 回傳的帳號資訊結構
 export interface AccountInfo {
   id: string;
@@ -183,7 +230,7 @@ const getManagementContext = async () => {
   const { apiClient, clientCredentials } = createManagementApi("default", {
     clientId: managementAPIConfig.clientId,
     clientSecret: managementAPIConfig.clientSecret,
-    baseUrl: managementAPIConfig.logtoEndpoint,
+    baseUrl: managementAPIConfig.logtoEndpoint!,
     apiIndicator: "https://default.logto.app/api",
   });
   const accessToken = (await clientCredentials.getAccessToken()).value;
@@ -193,6 +240,17 @@ const getManagementContext = async () => {
     throw new Error("User ID is missing in token claims");
   }
   return { accessToken, userId, apiClient };
+};
+
+export const getSocialIdentities = async () => {
+  try {
+    const identities = await managementAPI.getAllIdentities();
+    console.log('Raw identities response:', JSON.stringify(identities, null, 2));
+    return identities || { socialIdentities: [], ssoIdentities: [] };
+  } catch (error) {
+    console.error('Failed to get social identities:', error);
+    return { socialIdentities: [], ssoIdentities: [] };
+  }
 };
 
 export const managementAPI = {
@@ -250,5 +308,12 @@ export const managementAPI = {
       // 如果 JSON 解析失敗，未知錯誤
       return { success: false, message: "Unknown error" };
     }
+  },
+  getAllIdentities: async () => {
+    const { apiClient, userId } = await getManagementContext();
+    const res = await apiClient.GET("/api/users/{userId}/all-identities", {
+      params: { path: { userId } }
+    });
+    return res.data;
   }
 }

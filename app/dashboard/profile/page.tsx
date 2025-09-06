@@ -1,5 +1,6 @@
-import { getLogtoContext, getAccountInfo, updateAccountInfo, updateProfileInfo, AccountInfo } from '../../logto';
+import { getLogtoContext, getAccountInfo, updateAccountInfo, updateProfileInfo, AccountInfo, getSocialIdentities } from '../../logto';
 import Link from 'next/link';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import Avatar from '../components/Avatar';
 
@@ -136,12 +137,21 @@ const updateProfile = async (formData: FormData) => {
 const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: string; error?: string; edit?: string }> }) => {
   const { isAuthenticated } = await getLogtoContext();
   let accountInfo: AccountInfo | { error: string } | null = null;
+  let socialIdentities: Record<string, unknown> | null = null;
 
   if (isAuthenticated) {
     try {
       accountInfo = await getAccountInfo();
     } catch {
       accountInfo = { error: '取得帳號資訊失敗' };
+    }
+
+    // 獲取社群身分
+    try {
+      socialIdentities = await getSocialIdentities();
+    } catch (error) {
+      console.error('Failed to get social identities:', error);
+      socialIdentities = { socialIdentities: [], ssoIdentities: [] };
     }
   }
 
@@ -359,6 +369,219 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       </div>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* 社群帳號卡片 */}
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                  <h3 className="text-xl font-semibold text-white">社群帳號</h3>
+                </div>
+                <div className="p-6">
+                  {socialIdentities && 
+                   (Array.isArray((socialIdentities as { socialIdentities?: unknown[] }).socialIdentities) && 
+                    (socialIdentities as { socialIdentities?: unknown[] }).socialIdentities!.length > 0) || 
+                   (Array.isArray((socialIdentities as { ssoIdentities?: unknown[] }).ssoIdentities) && 
+                    (socialIdentities as { ssoIdentities?: unknown[] }).ssoIdentities!.length > 0) ? (
+                    <div className="space-y-4">
+                      {/* 社群登入身分 */}
+                      {Array.isArray((socialIdentities as { socialIdentities?: unknown[] }).socialIdentities) &&
+                       (socialIdentities as { socialIdentities?: unknown[] }).socialIdentities!.map((identity: unknown, index: number) => {
+                        const socialId = identity as { 
+                          target: string; 
+                          identity: { 
+                            userId: string;
+                            details?: {
+                              id: string;
+                              name: string;
+                              email: string;
+                              avatar: string;
+                              rawData: {
+                                sub: string;
+                                name: string;
+                                email: string;
+                                picture: string;
+                                given_name: string;
+                                family_name: string;
+                                email_verified: boolean;
+                              };
+                            }
+                          } 
+                        };
+
+                        const getProviderIcon = (provider: string) => {
+                          switch (provider.toLowerCase()) {
+                            case 'google':
+                              return (
+                                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                                  <svg className="w-6 h-6" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                  </svg>
+                                </div>
+                              );
+                            case 'github':
+                              return (
+                                <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center">
+                                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                  </svg>
+                                </div>
+                              );
+                            default:
+                              return (
+                                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                                  <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                                    {provider.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              );
+                          }
+                        };
+
+                        return (
+                          <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                            <div className="flex items-start space-x-4">
+                              {getProviderIcon(socialId.target)}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-semibold text-gray-900 dark:text-white capitalize">
+                                    {socialId.target}
+                                  </h4>
+                                  <div className="flex items-center text-green-500">
+                                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                    <span className="text-sm font-medium">已連結</span>
+                                  </div>
+                                </div>
+                                
+                                {socialId.identity.details && (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center space-x-3">
+                                      {socialId.identity.details.avatar && (
+                                        <Image 
+                                          src={socialId.identity.details.avatar} 
+                                          alt="Avatar"
+                                          width={32}
+                                          height={32}
+                                          className="w-8 h-8 rounded-full"
+                                        />
+                                      )}
+                                      <div>
+                                        <p className="font-medium text-gray-900 dark:text-white">
+                                          {socialId.identity.details.name}
+                                        </p>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                                          {socialId.identity.details.email}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                      <div>
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">用戶 ID</span>
+                                        <p className="text-sm text-gray-900 dark:text-white font-mono">
+                                          {socialId.identity.details.id}
+                                        </p>
+                                      </div>
+                                      
+                                      <div>
+                                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email 驗證</span>
+                                        <p className="text-sm">
+                                          {socialId.identity.details.rawData?.email_verified ? (
+                                            <span className="text-green-600 dark:text-green-400 flex items-center">
+                                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                              </svg>
+                                              已驗證
+                                            </span>
+                                          ) : (
+                                            <span className="text-yellow-600 dark:text-yellow-400 flex items-center">
+                                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                              </svg>
+                                              未驗證
+                                            </span>
+                                          )}
+                                        </p>
+                                      </div>
+                                      
+                                      {socialId.identity.details.rawData?.given_name && (
+                                        <div>
+                                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">名字</span>
+                                          <p className="text-sm text-gray-900 dark:text-white">
+                                            {socialId.identity.details.rawData.given_name}
+                                          </p>
+                                        </div>
+                                      )}
+                                      
+                                      {socialId.identity.details.rawData?.family_name && (
+                                        <div>
+                                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">姓氏</span>
+                                          <p className="text-sm text-gray-900 dark:text-white">
+                                            {socialId.identity.details.rawData.family_name}
+                                          </p>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* SSO 身分 */}
+                      {Array.isArray((socialIdentities as { ssoIdentities?: unknown[] }).ssoIdentities) &&
+                       (socialIdentities as { ssoIdentities?: unknown[] }).ssoIdentities!.map((identity: unknown, index: number) => {
+                        const ssoId = identity as { ssoConnectorId: string; ssoIdentity: { detail: Record<string, unknown> } };
+                        return (
+                          <div key={index} className="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                                  <span className="text-purple-600 dark:text-purple-400 font-semibold text-sm">
+                                    SSO
+                                  </span>
+                                </div>
+                                <div>
+                                  <h4 className="font-medium text-gray-900 dark:text-white">
+                                    {ssoId.ssoConnectorId}
+                                  </h4>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    企業登入
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-green-500">
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                      </div>
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                        沒有連結的社群帳號
+                      </h4>
+                      <p className="text-gray-500 dark:text-gray-400">
+                        您還沒有連結任何社群帳號
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
