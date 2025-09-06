@@ -1,5 +1,11 @@
 # Account Center
 
+榛果繽紛樂的帳號中心
+
+網址: [https://account.hazelnut-paradise.com](https://account.hazelnut-paradise.com)
+
+![logo](AccountCenter.png)
+
 This is a [Next.js](https://nextjs.org) project for user account management with [Logto](https://logto.io) authentication.
 
 ## Features
