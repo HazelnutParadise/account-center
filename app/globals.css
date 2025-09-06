@@ -93,10 +93,9 @@ button,
 input[type="button"],
 input[type="submit"],
 input[type="reset"],
-a,
+a:not(.toggle-switch),
 .cursor-pointer,
 [role="button"],
-label[for],
 select {
   cursor: pointer;
   min-height: 44px; /* iOS Human Interface Guidelines 建議的最小觸控目標 */
@@ -104,6 +103,14 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 特別處理表單標籤 */
+label[for]:not(.toggle-switch) {
+  cursor: pointer;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 
 button:disabled,
@@ -115,4 +122,24 @@ input:disabled {
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* 強制修正開關樣式 */
+.toggle-switch {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  min-height: auto !important;
+  min-width: auto !important;
+}
+
+.toggle-switch input[type="checkbox"] {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.toggle-switch > div {
+  position: relative !important;
+  display: block !important;
 }

@@ -1,7 +1,7 @@
-import { getLogtoContext } from '../logto';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ReactNode } from 'react';
+import { getLogtoContext } from "../logto";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -11,7 +11,7 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
   const { isAuthenticated } = await getLogtoContext();
 
   if (!isAuthenticated) {
-    redirect('/');
+    redirect("/");
   }
 
   return (
@@ -30,7 +30,7 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
               href="/dashboard"
               className="block px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors text-center"
             >
-              📊 總覽
+              📊 帳號總覽
             </Link>
             <Link
               href="/dashboard/profile"
@@ -67,7 +67,7 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
                 href="/dashboard"
                 className="flex items-center w-full px-4 py-3 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                📊 總覽
+                📊 帳號總覽
               </Link>
               <Link
                 href="/dashboard/profile"
@@ -89,12 +89,22 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
               </Link>
             </nav>
           </div>
+          <iframe
+            id="navbar-placeholder"
+            src="https://src.hazelnut-paradise.com/navbar.html?content-type=text/html"
+            style={{
+              width: "100%",
+              height: "320px",
+              margin: 0,
+              padding: 0,
+              marginTop: "30px",
+              backgroundColor: "black",
+            }}
+          ></iframe>
         </aside>
 
         {/* 主要內容區域 */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          {children}
-        </main>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
