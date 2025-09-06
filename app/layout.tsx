@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "帳號中心",
+  title: "帳號中心 - 榛果繽紛樂",
   description: "管理您的帳號資訊和個人設定",
   viewport: {
     width: "device-width",
