@@ -89,7 +89,10 @@ export const logtoConfig: LogtoNextConfig = {
   endpoint: process.env.LOGTO_ENDPOINT!,
   appId: process.env.LOGTO_APP_ID!,
   appSecret: process.env.LOGTO_APP_SECRET!,
-  baseUrl: process.env.NODE_ENV === "production" ? process.env.LOGTO_BASE_URL_PROD! : process.env.LOGTO_BASE_URL_DEV!,
+  baseUrl:
+    process.env.NODE_ENV === "production"
+      ? process.env.LOGTO_BASE_URL_PROD!
+      : process.env.LOGTO_BASE_URL_DEV!,
   cookieSecret: process.env.LOGTO_COOKIE_SECRET!,
   cookieSecure: process.env.NODE_ENV === "production",
   scopes: ["openid", "profile", "email", "phone", "custom_data"],
@@ -244,36 +247,6 @@ const getManagementContext = async () => {
   return { accessToken, userId, apiClient };
 };
 
-// === SOCIAL CONNECTORS CONFIG ===
-
-export const getSocialConnectors = () => {
-  return [
-    {
-      id: managementAPIConfig.googleConnectorId,
-      name: 'Google',
-      target: 'google',
-      icon: '🟢', // 或您可以使用實際的 Google icon
-    },
-    {
-      id: managementAPIConfig.githubConnectorId,
-      name: 'GitHub',
-      target: 'github',
-      icon: '⚫', // 或您可以使用實際的 GitHub icon
-    },
-  ].filter(connector => connector.id); // 過濾掉沒有配置的連接器
-};
-
-export const getSocialIdentities = async () => {
-  try {
-    const identities = await managementAPI.getAllIdentities();
-    console.log('Raw identities response:', JSON.stringify(identities, null, 2));
-    return identities || { socialIdentities: [], ssoIdentities: [] };
-  } catch (error) {
-    console.error('Failed to get social identities:', error);
-    return { socialIdentities: [], ssoIdentities: [] };
-  }
-};
-
 export const managementAPI = {
   setPassword: async (password: string) => {
     const { accessToken, userId } = await getManagementContext();
@@ -333,156 +306,185 @@ export const managementAPI = {
   getAllIdentities: async () => {
     const { apiClient, userId } = await getManagementContext();
     const res = await apiClient.GET("/api/users/{userId}/all-identities", {
-      params: { path: { userId } }
+      params: { path: { userId } },
     });
     return res.data;
   },
-  
+
   // === 社群連接相關 API ===
   createSocialVerification: async (connectorId: string) => {
     const accessToken = await getAccessTokenRSC();
     const state = crypto.randomUUID();
     const redirectUri = `${logtoConfig.baseUrl}/dashboard/profile/social/callback`;
-    
-    console.log('Creating social verification with:', {
+
+    console.log("Creating social verification with:", {
       connectorId,
       state,
       redirectUri,
     });
-    
-    const res = await fetch(`${logtoConfig.endpoint}/api/verifications/social`, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        state,
-        redirectUri,
-        connectorId,
-      }),
-    });
+
+    const res = await fetch(
+      `${logtoConfig.endpoint}/api/verifications/social`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          state,
+          redirectUri,
+          connectorId,
+        }),
+      }
+    );
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "Unknown error");
-      console.error('Failed to create social verification:', res.status, errorText);
+      console.error(
+        "Failed to create social verification:",
+        res.status,
+        errorText
+      );
       throw new Error(`${res.status}: ${errorText}`);
     }
 
     const result = await res.json();
-    console.log('Social verification created:', {
+    console.log("Social verification created:", {
       verificationRecordId: result.verificationRecordId,
       authorizationUri: result.authorizationUri,
-      expiresAt: result.expiresAt
+      expiresAt: result.expiresAt,
     });
-  console.log('Expect verify to use redirectUri:', redirectUri);
-    
+    console.log("Expect verify to use redirectUri:", redirectUri);
+
     return result;
   },
-  
+
   // 直接完成社群身分連接的簡化方法
-  completeSocialConnection: async (verificationRecordId: string, authorizationCode: string, state: string, connectorId: string) => {
-    console.log('Completing social connection:', {
+  completeSocialConnection: async (
+    verificationRecordId: string,
+    authorizationCode: string,
+    state: string,
+    connectorId: string
+  ) => {
+    console.log("Completing social connection:", {
       verificationRecordId,
       connectorId,
-      authorizationCode: authorizationCode.substring(0, 20) + '...',
-      state
-    });
-    
-    // 獲取 Management API context（包含 userId 和 management token）
-    const { accessToken: managementToken, userId } = await getManagementContext();
-    const redirectUri = `${logtoConfig.baseUrl}/dashboard/profile/social/callback`;
-    
-    // 直接使用 Management API 連接社群身分
-    const res = await fetch(`${logtoConfig.endpoint}/api/users/${userId}/identities`, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${managementToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        connectorId: connectorId,
-        connectorData: {
-          code: authorizationCode,
-          state: state,
-          redirectUri: redirectUri
-        }
-      }),
+      authorizationCode: authorizationCode.substring(0, 20) + "...",
+      state,
     });
 
-    console.log('Link identity response status:', res.status);
+    // 獲取 Management API context（包含 userId 和 management token）
+    const { accessToken: managementToken, userId } =
+      await getManagementContext();
+    const redirectUri = `${logtoConfig.baseUrl}/dashboard/profile/social/callback`;
+
+    // 直接使用 Management API 連接社群身分
+    const res = await fetch(
+      `${logtoConfig.endpoint}/api/users/${userId}/identities`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${managementToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          connectorId: connectorId,
+          connectorData: {
+            code: authorizationCode,
+            state: state,
+            redirectUri: redirectUri,
+          },
+        }),
+      }
+    );
+
+    console.log("Link identity response status:", res.status);
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "Unknown error");
-      console.error('Failed to link social identity:', errorText);
-      
+      console.error("Failed to link social identity:", errorText);
+
       // 處理特定的錯誤類型
       if (res.status === 422) {
         try {
           const errorData = JSON.parse(errorText);
-          console.log('Parsed error data:', errorData);
-          if (errorData.code === 'user.identity_already_in_use') {
-            console.log('Throwing IDENTITY_ALREADY_IN_USE error');
+          console.log("Parsed error data:", errorData);
+          if (errorData.code === "user.identity_already_in_use") {
+            console.log("Throwing IDENTITY_ALREADY_IN_USE error");
             throw new Error(`IDENTITY_ALREADY_IN_USE: ${errorText}`);
           }
         } catch (parseError) {
-          console.error('Failed to parse error data:', parseError);
+          console.error("Failed to parse error data:", parseError);
           // 如果無法解析錯誤，但狀態是422且包含已使用的訊息，仍然拋出特殊錯誤
-          if (errorText.includes('identity_already_in_use') || 
-              errorText.includes('already been associated')) {
+          if (
+            errorText.includes("identity_already_in_use") ||
+            errorText.includes("already been associated")
+          ) {
             throw new Error(`IDENTITY_ALREADY_IN_USE: ${errorText}`);
           }
         }
       }
-      
+
       throw new Error(`Link identity failed: ${res.status}: ${errorText}`);
     }
 
-    console.log('Social identity linked successfully');
+    console.log("Social identity linked successfully");
     return { success: true };
   },
-  
+
   addSocialIdentity: async (verificationRecordId: string) => {
     const accessToken = await getAccessTokenRSC();
-    
-    console.log('Adding social identity with verification record:', verificationRecordId);
-    
-    const res = await fetch(`${logtoConfig.endpoint}/api/my-account/identities`, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        newIdentifierVerificationRecordId: verificationRecordId,
-      }),
-    });
 
-    console.log('Add social identity response status:', res.status);
+    console.log(
+      "Adding social identity with verification record:",
+      verificationRecordId
+    );
+
+    const res = await fetch(
+      `${logtoConfig.endpoint}/api/my-account/identities`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          newIdentifierVerificationRecordId: verificationRecordId,
+        }),
+      }
+    );
+
+    console.log("Add social identity response status:", res.status);
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "Unknown error");
-      console.error('Failed to add social identity:', {
+      console.error("Failed to add social identity:", {
         status: res.status,
         error: errorText,
-        verificationRecordId
+        verificationRecordId,
       });
       throw new Error(`${res.status}: ${errorText}`);
     }
 
-    console.log('Social identity added successfully');
+    console.log("Social identity added successfully");
     return { success: true };
   },
-  
+
   removeSocialIdentity: async (target: string) => {
     const accessToken = await getAccessTokenRSC();
-    
-    const res = await fetch(`${logtoConfig.endpoint}/api/my-account/identities/${encodeURIComponent(target)}`, {
-      method: "DELETE",
-      headers: {
-        authorization: `Bearer ${accessToken}`,
-      },
-    });
+
+    const res = await fetch(
+      `${logtoConfig.endpoint}/api/my-account/identities/${encodeURIComponent(
+        target
+      )}`,
+      {
+        method: "DELETE",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => "Unknown error");
@@ -491,5 +493,38 @@ export const managementAPI = {
 
     // 204 No Content 表示成功
     return { success: true };
+  },
+};
+
+// === SOCIAL CONNECTORS CONFIG ===
+
+export const getSocialConnectors = () => {
+  return [
+    {
+      id: managementAPIConfig.googleConnectorId,
+      name: "Google",
+      target: "google",
+      icon: "🟢", // 或您可以使用實際的 Google icon
+    },
+    {
+      id: managementAPIConfig.githubConnectorId,
+      name: "GitHub",
+      target: "github",
+      icon: "⚫", // 或您可以使用實際的 GitHub icon
+    },
+  ].filter((connector) => connector.id); // 過濾掉沒有配置的連接器
+};
+
+export const getSocialIdentities = async () => {
+  try {
+    const identities = await managementAPI.getAllIdentities();
+    console.log(
+      "Raw identities response:",
+      JSON.stringify(identities, null, 2)
+    );
+    return identities || { socialIdentities: [], ssoIdentities: [] };
+  } catch (error) {
+    console.error("Failed to get social identities:", error);
+    return { socialIdentities: [], ssoIdentities: [] };
   }
-}
+};
