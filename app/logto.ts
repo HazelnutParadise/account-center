@@ -219,5 +219,36 @@ export const managementAPI = {
 
     return res.json();
   },
-  // 其他管理 API 方法可在此擴充，直接取得 accessToken, userId, apiClient
-};
+  verifyPassword: async (password: string) => {
+    const { accessToken, userId } = await getManagementContext();
+    const res = await fetch(
+      `${logtoConfig.endpoint}/api/users/${userId}/password/verify`,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      }
+    );
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "Unknown error");
+      throw new Error(`${res.status}: ${errorText}`);
+    }
+
+    // 如果是 204 No Content，直接返回成功
+    if (res.status === 204) {
+      return { success: true };
+    }
+
+    // 如果不是 204，嘗試解析 JSON 響應體
+    try {
+      return await res.json();
+    } catch {
+      // 如果 JSON 解析失敗，未知錯誤
+      return { success: false, message: "Unknown error" };
+    }
+  }
+}

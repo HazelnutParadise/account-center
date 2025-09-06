@@ -48,6 +48,64 @@ const setUserPassword = async (formData: FormData) => {
   redirect("/dashboard/security?success=true");
 };
 
+const updateUserPassword = async (formData: FormData) => {
+  "use server";
+
+  const currentPassword = formData.get("currentPassword") as string;
+  const newPassword = formData.get("newPassword") as string;
+  const confirmNewPassword = formData.get("confirmNewPassword") as string;
+
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    redirect("/dashboard/security?error=missing_fields");
+  }
+
+  if (newPassword !== confirmNewPassword) {
+    redirect("/dashboard/security?error=password_mismatch");
+  }
+
+  if (newPassword.length < 8) {
+    redirect("/dashboard/security?error=password_too_short");
+  }
+
+  // 檢查新密碼是否與當前密碼相同
+  if (currentPassword === newPassword) {
+    redirect("/dashboard/security?error=same_password");
+  }
+
+  try {
+    // 首先驗證當前密碼
+    await managementAPI.verifyPassword(currentPassword);
+    
+    // 驗證成功後，設定新密碼
+    await managementAPI.setPassword(newPassword);
+  } catch (error) {
+    console.error("更新密碼失敗:", error);
+    // 提供更詳細的錯誤信息
+    let errorType = "update_password_failed";
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+      // 檢查是否是密碼驗證失敗 (422 錯誤或 invalid_credentials)
+      if (errorMessage.includes("422") || 
+          errorMessage.includes("invalid_credentials") ||
+          errorMessage.includes("incorrect account or password")) {
+        errorType = "current_password_incorrect";
+      } else if (errorMessage.includes("401") || errorMessage.includes("403")) {
+        errorType = "current_password_incorrect";
+      } else if (errorMessage.includes("400")) {
+        errorType = "invalid_password";
+      } else if (
+        errorMessage.includes("network") ||
+        errorMessage.includes("fetch")
+      ) {
+        errorType = "network_error";
+      }
+    }
+    redirect(`/dashboard/security?error=${errorType}`);
+  }
+
+  redirect("/dashboard/security?success=password_updated");
+};
+
 const Security = async ({
   searchParams,
 }: {
@@ -83,10 +141,12 @@ const Security = async ({
             <span className="text-2xl mr-3">✅</span>
             <div>
               <h4 className="text-green-800 dark:text-green-200 font-semibold">
-                密碼設定成功
+                {params.success === "password_updated" && "密碼更新成功"}
+                {params.success === "true" && "密碼設定成功"}
               </h4>
               <p className="text-green-600 dark:text-green-300 text-sm">
-                您的密碼已成功設定
+                {params.success === "password_updated" && "您的密碼已成功更新"}
+                {params.success === "true" && "您的密碼已成功設定"}
               </p>
             </div>
           </div>
@@ -104,6 +164,9 @@ const Security = async ({
                 {params.error === "password_too_short" &&
                   "密碼長度至少需要 8 個字符"}
                 {params.error === "set_password_failed" && "設定密碼失敗"}
+                {params.error === "update_password_failed" && "更新密碼失敗"}
+                {params.error === "current_password_incorrect" && "當前密碼不正確"}
+                {params.error === "same_password" && "新密碼不能與當前密碼相同"}
                 {params.error === "auth_failed" && "認證失敗"}
                 {params.error === "invalid_password" && "密碼不符合要求"}
                 {params.error === "network_error" && "網路連接錯誤"}
@@ -112,11 +175,17 @@ const Security = async ({
                 {params.error === "password_mismatch" &&
                   "請確認新密碼和確認密碼相同"}
                 {params.error === "missing_fields" &&
-                  "請填寫密碼和確認密碼欄位"}
+                  "請填寫所有必填欄位"}
                 {params.error === "password_too_short" &&
                   "密碼長度至少需要 8 個字符"}
                 {params.error === "set_password_failed" &&
                   "設定密碼時發生未知錯誤，請稍後再試"}
+                {params.error === "update_password_failed" &&
+                  "更新密碼時發生未知錯誤，請稍後再試"}
+                {params.error === "current_password_incorrect" &&
+                  "您輸入的當前密碼不正確，請檢查後重新輸入"}
+                {params.error === "same_password" &&
+                  "新密碼必須與當前密碼不同"}
                 {params.error === "auth_failed" &&
                   "認證已過期，請重新登入後再試"}
                 {params.error === "invalid_password" &&
@@ -166,36 +235,52 @@ const Security = async ({
                     <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
                       變更密碼
                     </h4>
-                    <form className="space-y-4">
+                    <form action={updateUserPassword} className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          目前密碼
+                          目前密碼 <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="password"
+                          name="currentPassword"
+                          required
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="請輸入目前密碼"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          新密碼
+                          新密碼 <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="password"
+                          name="newPassword"
+                          required
+                          minLength={8}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入新密碼"
+                          placeholder="請輸入新密碼（至少 8 個字符）"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          確認新密碼
+                          確認新密碼 <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="password"
+                          name="confirmNewPassword"
+                          required
+                          minLength={8}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="請再次輸入新密碼"
                         />
+                      </div>
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                        <div className="flex items-start space-x-2">
+                          <span className="text-blue-500 text-sm">💡</span>
+                          <p className="text-blue-800 dark:text-blue-200 text-sm">
+                            <strong>密碼要求：</strong>至少 8 個字符，建議包含大小寫字母、數字和特殊符號
+                          </p>
+                        </div>
                       </div>
                       <button
                         type="submit"
@@ -229,25 +314,37 @@ const Security = async ({
                     <form action={setUserPassword} className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          新密碼
+                          新密碼 <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="password"
                           name="password"
+                          required
+                          minLength={8}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入新密碼"
+                          placeholder="請輸入新密碼（至少 8 個字符）"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          確認新密碼
+                          確認新密碼 <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="password"
                           name="confirmPassword"
+                          required
+                          minLength={8}
                           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           placeholder="請再次輸入新密碼"
                         />
+                      </div>
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                        <div className="flex items-start space-x-2">
+                          <span className="text-blue-500 text-sm">💡</span>
+                          <p className="text-blue-800 dark:text-blue-200 text-sm">
+                            <strong>密碼要求：</strong>至少 8 個字符，建議包含大小寫字母、數字和特殊符號
+                          </p>
+                        </div>
                       </div>
                       <button
                         type="submit"
