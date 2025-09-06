@@ -80,6 +80,30 @@ export const updateAccountInfo = async (data: {
   avatar?: string;
   customData?: Record<string, unknown>;
 }) => {
+  // 過濾處理資料，只保留有意義的值
+  const filteredData: Record<string, unknown> = {};
+  
+  Object.entries(data).forEach(([key, value]) => {
+    if (typeof value === 'string') {
+      const trimmedValue = value.trim();
+      if (key === 'username') {
+        // username 不能為空，如果為空則不更新
+        if (trimmedValue) {
+          filteredData[key] = trimmedValue;
+        }
+      } else {
+        // name 和 avatar 只有在有值時才更新
+        if (trimmedValue) {
+          filteredData[key] = trimmedValue;
+        }
+      }
+    } else if (value !== undefined) {
+      filteredData[key] = value;
+    }
+  });
+
+  console.log('Updating account with data:', filteredData);
+
   const accessToken = await getAccessTokenRSC();
   const res = await fetch(`${logtoConfig.endpoint}/api/my-account`, {
     method: 'PATCH',
@@ -87,9 +111,15 @@ export const updateAccountInfo = async (data: {
       authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(filteredData),
   });
-  if (!res.ok) throw new Error('更新帳號資訊失敗');
+  
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => 'Unknown error');
+    console.error('Account update failed:', res.status, errorText);
+    throw new Error(`更新帳號資訊失敗: ${res.status} - ${errorText}`);
+  }
+  
   return res.json();
 };
 
@@ -112,6 +142,30 @@ export const updateProfileInfo = async (data: {
     country?: string;
   };
 }) => {
+  // 過濾掉 undefined 值，只保留有意義的值
+  const filteredData: Record<string, unknown> = {};
+  
+  Object.entries(data).forEach(([key, value]) => {
+    if (key === 'address' && value && typeof value === 'object') {
+      // 處理地址物件
+      const addressData: Record<string, string> = {};
+      Object.entries(value).forEach(([addressKey, addressValue]) => {
+        if (typeof addressValue === 'string' && addressValue !== undefined) {
+          addressData[addressKey] = addressValue;
+        }
+      });
+      // 只有當地址物件有內容時才加入
+      if (Object.keys(addressData).length > 0) {
+        filteredData[key] = addressData;
+      }
+    } else if (typeof value === 'string' && value !== undefined) {
+      // 保留所有定義的字串值（包括空字串，用於清空）
+      filteredData[key] = value;
+    }
+  });
+
+  console.log('Updating profile with data:', filteredData);
+
   const accessToken = await getAccessTokenRSC();
   const res = await fetch(`${logtoConfig.endpoint}/api/my-account/profile`, {
     method: 'PATCH',
@@ -119,9 +173,15 @@ export const updateProfileInfo = async (data: {
       authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(filteredData),
   });
-  if (!res.ok) throw new Error('更新個人資料失敗');
+  
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => 'Unknown error');
+    console.error('Profile update failed:', res.status, errorText);
+    throw new Error(`更新個人資料失敗: ${res.status} - ${errorText}`);
+  }
+  
   return res.json();
 };
 

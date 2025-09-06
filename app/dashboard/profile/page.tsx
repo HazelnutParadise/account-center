@@ -14,8 +14,8 @@ const updateProfile = async (formData: FormData) => {
   } = {};
   
   const username = formData.get('username') as string;
-  const name = formData.get('name') as string;
-  const avatar = formData.get('avatar') as string;
+  const nameValue = formData.get('name') as string;
+  const avatarValue = formData.get('avatar') as string;
 
   // username 必須有值
   if (username && username.trim()) {
@@ -25,9 +25,9 @@ const updateProfile = async (formData: FormData) => {
     return;
   }
   
-  // name 和 avatar 允許空值
-  accountData.name = name?.trim() || '';
-  accountData.avatar = avatar?.trim() || '';
+  // name 和 avatar 只有在有值時才更新
+  if (nameValue !== null) accountData.name = nameValue?.trim() || undefined;
+  if (avatarValue !== null) accountData.avatar = avatarValue?.trim() || undefined;
 
   // 個人資料更新 - 允許空值
   const profileData: {
@@ -50,34 +50,56 @@ const updateProfile = async (formData: FormData) => {
     };
   } = {};
 
-  // 所有個人資料欄位都允許空值
-  profileData.familyName = (formData.get('familyName') as string)?.trim() || '';
-  profileData.givenName = (formData.get('givenName') as string)?.trim() || '';
-  profileData.middleName = (formData.get('middleName') as string)?.trim() || '';
-  profileData.nickname = (formData.get('nickname') as string)?.trim() || '';
-  profileData.profile = (formData.get('profile') as string)?.trim() || '';
-  profileData.website = (formData.get('website') as string)?.trim() || '';
-  profileData.gender = (formData.get('gender') as string)?.trim() || '';
-  profileData.birthdate = (formData.get('birthdate') as string)?.trim() || '';
-  profileData.zoneinfo = (formData.get('zoneinfo') as string)?.trim() || '';
-  profileData.locale = (formData.get('locale') as string)?.trim() || '';
+  // 所有個人資料欄位都允許空值，但區分"不更新"和"清空"
+  const familyName = formData.get('familyName') as string;
+  const givenName = formData.get('givenName') as string;
+  const middleName = formData.get('middleName') as string;
+  const nickname = formData.get('nickname') as string;
+  const profile = formData.get('profile') as string;
+  const website = formData.get('website') as string;
+  const gender = formData.get('gender') as string;
+  const birthdate = formData.get('birthdate') as string;
+  const zoneinfo = formData.get('zoneinfo') as string;
+  const locale = formData.get('locale') as string;
 
-  // 地址資訊 - 允許空值
-  const addressData: {
-    streetAddress?: string;
-    locality?: string;
-    region?: string;
-    postalCode?: string;
-    country?: string;
-  } = {};
+  // 只有當表單提交了這些欄位時，才包含在更新中
+  if (familyName !== null) profileData.familyName = familyName?.trim() || undefined;
+  if (givenName !== null) profileData.givenName = givenName?.trim() || undefined;
+  if (middleName !== null) profileData.middleName = middleName?.trim() || undefined;
+  if (nickname !== null) profileData.nickname = nickname?.trim() || undefined;
+  if (profile !== null) profileData.profile = profile?.trim() || undefined;
+  if (website !== null) profileData.website = website?.trim() || undefined;
+  if (gender !== null) profileData.gender = gender?.trim() || undefined;
+  if (birthdate !== null) profileData.birthdate = birthdate?.trim() || undefined;
+  if (zoneinfo !== null) profileData.zoneinfo = zoneinfo?.trim() || undefined;
+  if (locale !== null) profileData.locale = locale?.trim() || undefined;
 
-  addressData.streetAddress = (formData.get('streetAddress') as string)?.trim() || '';
-  addressData.locality = (formData.get('locality') as string)?.trim() || '';
-  addressData.region = (formData.get('region') as string)?.trim() || '';
-  addressData.postalCode = (formData.get('postalCode') as string)?.trim() || '';
-  addressData.country = (formData.get('country') as string)?.trim() || '';
+  // 地址資訊 - 只有當表單提交了這些欄位時，才包含在更新中
+  const streetAddress = formData.get('streetAddress') as string;
+  const locality = formData.get('locality') as string;
+  const region = formData.get('region') as string;
+  const postalCode = formData.get('postalCode') as string;
+  const country = formData.get('country') as string;
+
+  const hasAddressFields = streetAddress !== null || locality !== null || region !== null || postalCode !== null || country !== null;
   
-  profileData.address = addressData;
+  if (hasAddressFields) {
+    const addressData: {
+      streetAddress?: string;
+      locality?: string;
+      region?: string;
+      postalCode?: string;
+      country?: string;
+    } = {};
+    
+    addressData.streetAddress = streetAddress?.trim() || undefined;
+    addressData.locality = locality?.trim() || undefined;
+    addressData.region = region?.trim() || undefined;
+    addressData.postalCode = postalCode?.trim() || undefined;
+    addressData.country = country?.trim() || undefined;
+    
+    profileData.address = addressData;
+  }
 
   try {
     // 更新基本帳號資訊
