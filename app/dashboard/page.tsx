@@ -53,7 +53,7 @@ const Dashboard = async () => {
             </div>
             <div className="flex items-center space-x-4">
               <Link
-                href="/dashboard/profile"
+                href="/dashboard/profile?edit=true"
                 className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
               >
                 編輯資料
@@ -185,24 +185,24 @@ const Dashboard = async () => {
                 {/* 詳細資訊 */}
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-3">
-                    {accountInfo.email && (
+                    {accountInfo.primaryEmail && (
                       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                         <div className="text-sm text-gray-500 dark:text-gray-400">
                           電子郵件
                         </div>
                         <div className="text-gray-900 dark:text-white">
-                          {accountInfo.email}
+                          {accountInfo.primaryEmail}
                         </div>
                       </div>
                     )}
 
-                    {accountInfo.phone && (
+                    {accountInfo.primaryPhone && (
                       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
                         <div className="text-sm text-gray-500 dark:text-gray-400">
                           電話號碼
                         </div>
                         <div className="text-gray-900 dark:text-white">
-                          {accountInfo.phone}
+                          {accountInfo.primaryPhone}
                         </div>
                       </div>
                     )}

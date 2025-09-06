@@ -46,7 +46,6 @@ const updateProfile = async (formData: FormData) => {
   // 個人資料更新 - 只發送有變化的欄位
   const profileData: {
     familyName?: string;
-    givenName?: string;
     middleName?: string;
     nickname?: string;
     profile?: string;
@@ -66,7 +65,6 @@ const updateProfile = async (formData: FormData) => {
 
   // 取得表單資料
   const familyName = formData.get('familyName') as string;
-  const givenName = formData.get('givenName') as string;
   const middleName = formData.get('middleName') as string;
   const nickname = formData.get('nickname') as string;
   const profile = formData.get('profile') as string;
@@ -82,9 +80,6 @@ const updateProfile = async (formData: FormData) => {
   
   if (familyName !== null && familyName !== (currentProfile.familyName || '')) {
     profileData.familyName = familyName.trim();
-  }
-  if (givenName !== null && givenName !== (currentProfile.givenName || '')) {
-    profileData.givenName = givenName.trim();
   }
   if (middleName !== null && middleName !== (currentProfile.middleName || '')) {
     profileData.middleName = middleName.trim();
@@ -321,14 +316,6 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          名字
-                        </label>
-                        <p className="text-gray-900 dark:text-white">
-                          {accountInfo.profile?.givenName || '未設定'}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           暱稱
                         </label>
                         <p className="text-gray-900 dark:text-white">
@@ -393,7 +380,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                           電子郵件
                         </label>
                         <p className="text-gray-900 dark:text-white">
-                          {accountInfo.email || '未設定'}
+                          {accountInfo.primaryEmail || '未設定'}
                         </p>
                       </div>
                       <div>
@@ -401,7 +388,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                           電話號碼
                         </label>
                         <p className="text-gray-900 dark:text-white">
-                          {accountInfo.phone || '未設定'}
+                          {accountInfo.primaryPhone || '未設定'}
                         </p>
                       </div>
                     </div>
@@ -493,17 +480,17 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       </div>
                     </div>
 
-                    {/* 姓名 */}
+                    {/* 名字 */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        姓名
+                        名字
                       </label>
                       <input
                         type="text"
                         name="name"
                         defaultValue={accountInfo.name || ''}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入您的姓名"
+                        placeholder="請輸入您的名字"
                       />
                     </div>
 
@@ -543,20 +530,6 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         defaultValue={accountInfo.profile?.familyName || ''}
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="請輸入姓氏"
-                      />
-                    </div>
-
-                    {/* 名字 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        名字
-                      </label>
-                      <input
-                        type="text"
-                        name="givenName"
-                        defaultValue={accountInfo.profile?.givenName || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="請輸入名字"
                       />
                     </div>
 

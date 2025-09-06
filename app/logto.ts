@@ -21,6 +21,7 @@ export interface AccountInfo {
     givenName?: string;
     middleName?: string;
     nickname?: string;
+    preferredUsername?: string;
     profile?: string;
     website?: string;
     gender?: string;
@@ -28,6 +29,7 @@ export interface AccountInfo {
     zoneinfo?: string;
     locale?: string;
     address?: {
+      formatted?: string;
       streetAddress?: string;
       locality?: string;
       region?: string;
@@ -38,8 +40,8 @@ export interface AccountInfo {
   applicationId: string;
   isSuspended: boolean;
   hasPassword: boolean;
-  email?: string;
-  phone?: string;
+  primaryEmail?: string;
+  primaryPhone?: string;
 }
 
 export const logtoConfig: LogtoNextConfig = {
@@ -126,6 +128,7 @@ export const updateProfileInfo = async (data: {
   givenName?: string;
   middleName?: string;
   nickname?: string;
+  preferredUsername?: string;
   profile?: string;
   website?: string;
   gender?: string;
@@ -133,6 +136,7 @@ export const updateProfileInfo = async (data: {
   zoneinfo?: string;
   locale?: string;
   address?: {
+    formatted?: string;
     streetAddress?: string;
     locality?: string;
     region?: string;
