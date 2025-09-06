@@ -1,7 +1,7 @@
 import { getLogtoContext, getAccountInfo, updateAccountInfo, updateProfileInfo, AccountInfo } from '../../logto';
-import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import Avatar from '../components/Avatar';
 
 const updateProfile = async (formData: FormData) => {
   'use server';
@@ -20,7 +20,7 @@ const updateProfile = async (formData: FormData) => {
   const accountData: {
     username?: string;
     name?: string;
-    avatar?: string;
+    avatar?: string | null;
   } = {};
   
   const username = formData.get('username') as string;
@@ -40,27 +40,23 @@ const updateProfile = async (formData: FormData) => {
     accountData.name = nameValue.trim();
   }
   if (avatarValue !== null && avatarValue !== (currentAccountInfo.avatar || '')) {
-    accountData.avatar = avatarValue.trim();
+    // 如果用戶清空頭像連結，傳送 null；否則傳送修剪後的值
+    accountData.avatar = avatarValue.trim() === '' ? null : avatarValue.trim();
   }
 
   // 個人資料更新 - 只發送有變化的欄位
   const profileData: {
     familyName?: string;
+    givenName?: string;
     middleName?: string;
     nickname?: string;
+    preferredUsername?: string;
     profile?: string;
     website?: string;
     gender?: string;
     birthdate?: string;
     zoneinfo?: string;
     locale?: string;
-    address?: {
-      streetAddress?: string;
-      locality?: string;
-      region?: string;
-      postalCode?: string;
-      country?: string;
-    };
   } = {};
 
   // 取得表單資料
@@ -106,49 +102,6 @@ const updateProfile = async (formData: FormData) => {
     profileData.locale = locale.trim();
   }
 
-  // 地址資訊 - 只更新有變化的欄位
-  const streetAddress = formData.get('streetAddress') as string;
-  const locality = formData.get('locality') as string;
-  const region = formData.get('region') as string;
-  const postalCode = formData.get('postalCode') as string;
-  const country = formData.get('country') as string;
-
-  const currentAddress = currentProfile.address || {};
-  const addressData: {
-    streetAddress?: string;
-    locality?: string;
-    region?: string;
-    postalCode?: string;
-    country?: string;
-  } = {};
-
-  let hasAddressChanges = false;
-
-  if (streetAddress !== null && streetAddress !== (currentAddress.streetAddress || '')) {
-    addressData.streetAddress = streetAddress.trim();
-    hasAddressChanges = true;
-  }
-  if (locality !== null && locality !== (currentAddress.locality || '')) {
-    addressData.locality = locality.trim();
-    hasAddressChanges = true;
-  }
-  if (region !== null && region !== (currentAddress.region || '')) {
-    addressData.region = region.trim();
-    hasAddressChanges = true;
-  }
-  if (postalCode !== null && postalCode !== (currentAddress.postalCode || '')) {
-    addressData.postalCode = postalCode.trim();
-    hasAddressChanges = true;
-  }
-  if (country !== null && country !== (currentAddress.country || '')) {
-    addressData.country = country.trim();
-    hasAddressChanges = true;
-  }
-
-  if (hasAddressChanges) {
-    profileData.address = addressData;
-  }
-
   try {
     // 只有當帳號資料有變化時才更新
     if (Object.keys(accountData).length > 0) {
@@ -161,6 +114,18 @@ const updateProfile = async (formData: FormData) => {
     }
   } catch (error) {
     console.error('更新失敗:', error);
+    
+    // 解析錯誤訊息
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    
+    // 檢查是否是用戶名已被使用的錯誤
+    if (errorMessage.includes('user.username_already_in_use') || 
+        errorMessage.includes('This username is already in use')) {
+      redirect('/dashboard/profile?error=username_already_in_use');
+      return;
+    }
+    
+    // 其他錯誤
     redirect('/dashboard/profile?error=update_failed');
     return;
   }
@@ -242,10 +207,12 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
             <div>
               <h4 className="text-red-800 dark:text-red-200 font-semibold">
                 {params.error === 'username_required' && '用戶名不能為空'}
+                {params.error === 'username_already_in_use' && '用戶名已被使用'}
                 {params.error === 'update_failed' && '更新失敗'}
               </h4>
               <p className="text-red-600 dark:text-red-300 text-sm">
                 {params.error === 'username_required' && '請提供有效的用戶名'}
+                {params.error === 'username_already_in_use' && '此用戶名已被其他用戶使用，請選擇其他用戶名'}
                 {params.error === 'update_failed' && '更新個人資料時發生錯誤，請稍後再試'}
               </p>
             </div>
@@ -275,12 +242,11 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                 <div className="p-6">
                   <div className="flex items-center space-x-6 mb-6">
                     <div className="flex-shrink-0">
-                      <Image
-                        src={accountInfo.avatar || '/placeholder-avatar.png'}
+                      <Avatar
+                        src={accountInfo.avatar}
                         alt="Avatar"
-                        width={120}
-                        height={120}
-                        className="rounded-full border-4 border-gray-200 dark:border-gray-600"
+                        name={accountInfo.name || accountInfo.username}
+                        size={120}
                       />
                     </div>
                     <div className="flex-1">
@@ -393,55 +359,6 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       </div>
                     </div>
                   </div>
-
-                  {/* 地址資訊 */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                      地址資訊
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          街道地址
-                        </label>
-                        <p className="text-gray-900 dark:text-white">
-                          {accountInfo.profile?.address?.streetAddress || '未設定'}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          城市
-                        </label>
-                        <p className="text-gray-900 dark:text-white">
-                          {accountInfo.profile?.address?.locality || '未設定'}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          地區/州
-                        </label>
-                        <p className="text-gray-900 dark:text-white">
-                          {accountInfo.profile?.address?.region || '未設定'}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          郵遞區號
-                        </label>
-                        <p className="text-gray-900 dark:text-white">
-                          {accountInfo.profile?.address?.postalCode || '未設定'}
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
-                          國家
-                        </label>
-                        <p className="text-gray-900 dark:text-white">
-                          {accountInfo.profile?.address?.country || '未設定'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -458,12 +375,11 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                     {/* 頭像區域 */}
                     <div className="md:col-span-2 flex items-center space-x-6">
                       <div className="flex-shrink-0">
-                        <Image
-                          src={accountInfo.avatar || '/placeholder-avatar.png'}
+                        <Avatar
+                          src={accountInfo.avatar}
                           alt="Avatar"
-                          width={100}
-                          height={100}
-                          className="rounded-full border-4 border-gray-200 dark:border-gray-600"
+                          name={accountInfo.name || accountInfo.username}
+                          size={100}
                         />
                       </div>
                       <div className="flex-1">
@@ -504,9 +420,18 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         name="username"
                         defaultValue={accountInfo.username}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                          params?.error === 'username_already_in_use' 
+                            ? 'border-red-300 dark:border-red-600 focus:ring-red-500' 
+                            : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
+                        }`}
                         placeholder="請輸入用戶名"
                       />
+                      {params?.error === 'username_already_in_use' && (
+                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                          此用戶名已被使用，請選擇其他用戶名
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -645,79 +570,6 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="zh-TW"
                       />
-                    </div>
-                  </div>
-
-                  {/* 地址資訊 */}
-                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                      地址資訊
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          街道地址
-                        </label>
-                        <input
-                          type="text"
-                          name="streetAddress"
-                          defaultValue={accountInfo.profile?.address?.streetAddress || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入街道地址"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          城市
-                        </label>
-                        <input
-                          type="text"
-                          name="locality"
-                          defaultValue={accountInfo.profile?.address?.locality || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入城市"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          地區/州
-                        </label>
-                        <input
-                          type="text"
-                          name="region"
-                          defaultValue={accountInfo.profile?.address?.region || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入地區"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          郵遞區號
-                        </label>
-                        <input
-                          type="text"
-                          name="postalCode"
-                          defaultValue={accountInfo.profile?.address?.postalCode || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入郵遞區號"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                          國家
-                        </label>
-                        <input
-                          type="text"
-                          name="country"
-                          defaultValue={accountInfo.profile?.address?.country || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                          placeholder="請輸入國家"
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>

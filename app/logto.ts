@@ -28,14 +28,6 @@ export interface AccountInfo {
     birthdate?: string;
     zoneinfo?: string;
     locale?: string;
-    address?: {
-      formatted?: string;
-      streetAddress?: string;
-      locality?: string;
-      region?: string;
-      postalCode?: string;
-      country?: string;
-    };
   };
   applicationId: string;
   isSuspended: boolean;
@@ -79,7 +71,7 @@ export const getAccountInfo = async () => {
 export const updateAccountInfo = async (data: {
   username?: string;
   name?: string;
-  avatar?: string;
+  avatar?: string | null;
   customData?: Record<string, unknown>;
 }) => {
   // 過濾處理資料，只保留有意義的值
@@ -135,33 +127,12 @@ export const updateProfileInfo = async (data: {
   birthdate?: string;
   zoneinfo?: string;
   locale?: string;
-  address?: {
-    formatted?: string;
-    streetAddress?: string;
-    locality?: string;
-    region?: string;
-    postalCode?: string;
-    country?: string;
-  };
 }) => {
   // 過濾掉 undefined 值，只保留有意義的值
   const filteredData: Record<string, unknown> = {};
   
   Object.entries(data).forEach(([key, value]) => {
-    if (key === 'address' && value && typeof value === 'object') {
-      // 處理地址物件
-      const addressData: Record<string, string> = {};
-      Object.entries(value).forEach(([addressKey, addressValue]) => {
-        if (typeof addressValue === 'string') {
-          // 接受所有字串值，包括空字串
-          addressData[addressKey] = addressValue;
-        }
-      });
-      // 只要有地址欄位就加入（即使是空字串）
-      if (Object.keys(addressData).length > 0) {
-        filteredData[key] = addressData;
-      }
-    } else if (typeof value === 'string' && value !== undefined) {
+    if (typeof value === 'string' && value !== undefined) {
       // 保留所有定義的字串值（包括空字串，用於清空）
       filteredData[key] = value;
     }
@@ -181,8 +152,10 @@ export const updateProfileInfo = async (data: {
   
   if (!res.ok) {
     const errorText = await res.text().catch(() => 'Unknown error');
-    console.error('Profile update failed:', res.status, errorText);
-    throw new Error(`更新個人資料失敗: ${res.status} - ${errorText}`);
+    const errorData = { status: res.status, statusText: res.statusText, body: errorText };
+    console.error('Profile update failed:', errorData);
+    console.error('Request data was:', filteredData);
+    throw new Error(`更新個人資料失敗: ${res.status} ${res.statusText} - ${errorText}`);
   }
   
   return res.json();

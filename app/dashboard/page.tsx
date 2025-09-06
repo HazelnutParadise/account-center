@@ -5,8 +5,8 @@ import {
   AccountInfo
 } from "../logto";
 import SignOut from "../sign-out";
-import Image from "next/image";
 import Link from "next/link";
+import Avatar from "./components/Avatar";
 
 const Dashboard = async () => {
   const { isAuthenticated, claims } = await getLogtoContext();
@@ -143,12 +143,11 @@ const Dashboard = async () => {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-4">
                     <div className="flex-shrink-0">
-                      <Image
+                      <Avatar
                         src={accountInfo.avatar}
                         alt="Avatar"
-                        width={80}
-                        height={80}
-                        className="rounded-full border-4 border-gray-200 dark:border-gray-600"
+                        name={accountInfo.name || accountInfo.username}
+                        size={80}
                       />
                     </div>
                     <div>
