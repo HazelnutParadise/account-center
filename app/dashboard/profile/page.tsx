@@ -1,4 +1,4 @@
-import { getLogtoContext, getAccountInfo, updateAccountInfo, updateProfileInfo, AccountInfo, getSocialIdentities } from '../../logto';
+import { getLogtoContext, getAccountInfo, updateAccountInfo, updateProfileInfo, AccountInfo, getSocialIdentities, getSocialConnectors, managementAPI } from '../../logto';
 import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
@@ -134,6 +134,46 @@ const updateProfile = async (formData: FormData) => {
   redirect('/dashboard/profile?success=true');
 };
 
+const connectSocialAccount = async (formData: FormData) => {
+  "use server";
+
+  const connectorId = formData.get("connectorId") as string;
+
+  if (!connectorId) {
+    redirect("/dashboard/profile?error=missing_connector_id");
+  }
+
+  let verificationResult;
+  
+  try {
+    // 建立社群驗證記錄並取得授權 URI
+    verificationResult = await managementAPI.createSocialVerification(connectorId);
+  } catch (error) {
+    console.error("建立社群連接失敗:", error);
+    let errorType = "social_connect_init_failed";
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase();
+      if (errorMessage.includes("404")) {
+        errorType = "connector_not_found";
+      } else if (errorMessage.includes("400")) {
+        errorType = "invalid_connector_config";
+      }
+    }
+    redirect(`/dashboard/profile?error=${errorType}`);
+  }
+  
+  // 將 verificationRecordId 和 connectorId 編碼到 state 參數中
+  const authUrl = new URL(verificationResult.authorizationUri);
+  const originalState = authUrl.searchParams.get('state');
+  const encodedState = `${originalState}:${verificationResult.verificationRecordId}:${connectorId}`;
+  authUrl.searchParams.set('state', encodedState);
+  
+  console.log('Redirecting to auth URL with encoded state');
+  
+  // 重定向到社群提供者進行認證
+  redirect(authUrl.toString());
+};
+
 const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: string; error?: string; edit?: string }> }) => {
   const { isAuthenticated } = await getLogtoContext();
   let accountInfo: AccountInfo | { error: string } | null = null;
@@ -157,6 +197,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
 
   const params = await searchParams;
   const isEditMode = params?.edit === 'true';
+  const availableConnectors = getSocialConnectors();
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -200,10 +241,12 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
             <span className="text-2xl mr-3">✅</span>
             <div>
               <h4 className="text-green-800 dark:text-green-200 font-semibold">
-                更新成功
+                {params.success === "true" && "更新成功"}
+                {params.success === "social_connected" && "社群帳號連接成功"}
               </h4>
               <p className="text-green-600 dark:text-green-300 text-sm">
-                您的個人資料已成功更新
+                {params.success === "true" && "您的個人資料已成功更新"}
+                {params.success === "social_connected" && "社群帳號已成功連接到您的帳號"}
               </p>
             </div>
           </div>
@@ -219,11 +262,33 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                 {params.error === 'username_required' && '用戶名不能為空'}
                 {params.error === 'username_already_in_use' && '用戶名已被使用'}
                 {params.error === 'update_failed' && '更新失敗'}
+                {params.error === 'social_auth_failed' && '社群認證失敗'}
+                {params.error === 'invalid_callback' && '無效的回調參數'}
+                {params.error === 'social_connect_failed' && '社群連接失敗'}
+                {params.error === 'invalid_social_response' && '無效的社群回應'}
+                {params.error === 'social_already_connected' && '社群帳號已被使用'}
+                {params.error === 'social_permission_denied' && '社群連接權限被拒絕'}
+                {params.error === 'social_connect_init_failed' && '啟動社群連接失敗'}
+                {params.error === 'connector_not_found' && '找不到社群連接器'}
+                {params.error === 'invalid_connector_config' && '社群連接器配置無效'}
+                {params.error === 'missing_connector_id' && '缺少連接器ID'}
+                {params.error === 'unexpected_error' && '發生未預期的錯誤'}
               </h4>
               <p className="text-red-600 dark:text-red-300 text-sm">
                 {params.error === 'username_required' && '請提供有效的用戶名'}
                 {params.error === 'username_already_in_use' && '此用戶名已被其他用戶使用，請選擇其他用戶名'}
                 {params.error === 'update_failed' && '更新個人資料時發生錯誤，請稍後再試'}
+                {params.error === 'social_auth_failed' && '社群認證過程中發生錯誤，請重新嘗試'}
+                {params.error === 'invalid_callback' && '社群認證回調參數無效，請重新嘗試連接'}
+                {params.error === 'social_connect_failed' && '連接社群帳號時發生錯誤，請稍後再試'}
+                {params.error === 'invalid_social_response' && '社群提供者回應無效，請重新嘗試'}
+                {params.error === 'social_already_connected' && '此社群帳號已被其他用戶使用，無法連接到您的帳戶。請使用其他社群帳號或聯繫管理員。'}
+                {params.error === 'social_permission_denied' && '您拒絕了社群連接授權，請重新授權以完成連接'}
+                {params.error === 'social_connect_init_failed' && '無法啟動社群連接程序，請檢查配置'}
+                {params.error === 'connector_not_found' && '找不到指定的社群連接器，請聯繫管理員'}
+                {params.error === 'invalid_connector_config' && '社群連接器配置有誤，請聯繫管理員'}
+                {params.error === 'missing_connector_id' && '缺少必要的連接器識別碼'}
+                {params.error === 'unexpected_error' && '發生未預期的系統錯誤，請稍後再試'}
               </p>
             </div>
           </div>
@@ -547,6 +612,63 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                           </div>
                         );
                       })}
+                      
+                      {/* 未連接的社群帳號 - 顯示連接選項 */}
+                      {availableConnectors.length > 0 && (
+                        <div className="border-t border-gray-200 dark:border-gray-600 pt-4 mt-6">
+                          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                            連接其他社群帳號
+                          </h4>
+                          <div className="space-y-3">
+                            {availableConnectors.map((connector) => {
+                              // 檢查是否已連接此社群帳號
+                              const isConnected = Array.isArray((socialIdentities as { socialIdentities?: unknown[] }).socialIdentities)
+                                ? (socialIdentities as { socialIdentities?: unknown[] }).socialIdentities!.some(
+                                    (identity: unknown) => (identity as { target: string }).target === connector.target
+                                  )
+                                : false;
+                              
+                              // 如果已連接，不顯示連接選項
+                              if (isConnected) return null;
+                              
+                              return (
+                                <div
+                                  key={connector.id}
+                                  className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                  <div className="flex items-center space-x-3">
+                                    <div className="w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                                      <span className="text-xl">{connector.icon}</span>
+                                    </div>
+                                    <div>
+                                      <h4 className="font-semibold text-gray-900 dark:text-white">
+                                        {connector.name}
+                                      </h4>
+                                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                                        連接您的 {connector.name} 帳號
+                                      </p>
+                                    </div>
+                                  </div>
+                                  
+                                  <form action={connectSocialAccount}>
+                                    <input
+                                      type="hidden"
+                                      name="connectorId"
+                                      value={connector.id}
+                                    />
+                                    <button
+                                      type="submit"
+                                      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    >
+                                      連接
+                                    </button>
+                                  </form>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-8">
@@ -558,11 +680,68 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                         沒有連結的社群帳號
                       </h4>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        您還沒有連結任何社群帳號
+                      <p className="text-gray-500 dark:text-gray-400 mb-4">
+                        連接社群帳號以獲得更便利的登入體驗
                       </p>
+                      
+                      {/* 顯示可用的連接選項 */}
+                      {availableConnectors.length > 0 && (
+                        <div className="space-y-3 mt-6">
+                          {availableConnectors.map((connector) => (
+                            <div
+                              key={connector.id}
+                              className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <div className="w-10 h-10 bg-gray-100 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                                  <span className="text-xl">{connector.icon}</span>
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                                    {connector.name}
+                                  </h4>
+                                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                                    連接您的 {connector.name} 帳號
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <form action={connectSocialAccount}>
+                                <input
+                                  type="hidden"
+                                  name="connectorId"
+                                  value={connector.id}
+                                />
+                                <button
+                                  type="submit"
+                                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                >
+                                  連接
+                                </button>
+                              </form>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
+                  
+                  {/* 社群連接說明 */}
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
+                    <div className="flex items-start space-x-3">
+                      <span className="text-blue-500 text-lg">💡</span>
+                      <div>
+                        <h4 className="text-blue-800 dark:text-blue-200 font-semibold text-sm">
+                          社群連接說明
+                        </h4>
+                        <ul className="text-blue-700 dark:text-blue-300 text-sm mt-1 space-y-1">
+                          <li>• 連接社群帳號後，您可以使用社群帳號快速登入</li>
+                          <li>• 您的社群帳號資訊將用於完善個人資料</li>
+                          <li>• 連接的社群帳號將顯示在此頁面中</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
