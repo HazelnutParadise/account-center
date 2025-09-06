@@ -617,11 +617,11 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       {availableConnectors.length > 0 && (
                         <div className="border-t border-gray-200 dark:border-gray-600 pt-4 mt-6">
                           <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                            連接其他社群帳號
+                            綁定其他社群帳號
                           </h4>
                           <div className="space-y-3">
                             {availableConnectors.map((connector) => {
-                              // 檢查是否已連接此社群帳號
+                              // 檢查是否已綁定此社群帳號
                               const isConnected = Array.isArray((socialIdentities as { socialIdentities?: unknown[] }).socialIdentities)
                                 ? (socialIdentities as { socialIdentities?: unknown[] }).socialIdentities!.some(
                                     (identity: unknown) => (identity as { target: string }).target === connector.target
@@ -645,7 +645,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                                         {connector.name}
                                       </h4>
                                       <p className="text-sm text-gray-600 dark:text-gray-300">
-                                        連接您的 {connector.name} 帳號
+                                        綁定您的 {connector.name} 帳號
                                       </p>
                                     </div>
                                   </div>
@@ -660,7 +660,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                                       type="submit"
                                       className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                     >
-                                      連接
+                                      綁定
                                     </button>
                                   </form>
                                 </div>
@@ -678,13 +678,13 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         </svg>
                       </div>
                       <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        沒有連結的社群帳號
+                        沒有綁定的社群帳號
                       </h4>
                       <p className="text-gray-500 dark:text-gray-400 mb-4">
-                        連接社群帳號以獲得更便利的登入體驗
+                        綁定社群帳號以獲得更便利的登入體驗
                       </p>
-                      
-                      {/* 顯示可用的連接選項 */}
+
+                      {/* 顯示可用的綁定選項 */}
                       {availableConnectors.length > 0 && (
                         <div className="space-y-3 mt-6">
                           {availableConnectors.map((connector) => (
@@ -701,7 +701,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                                     {connector.name}
                                   </h4>
                                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                                    連接您的 {connector.name} 帳號
+                                    綁定您的 {connector.name} 帳號
                                   </p>
                                 </div>
                               </div>
@@ -716,7 +716,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                                   type="submit"
                                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:bg-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                 >
-                                  連接
+                                  綁定
                                 </button>
                               </form>
                             </div>
@@ -725,19 +725,23 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                       )}
                     </div>
                   )}
-                  
-                  {/* 社群連接說明 */}
+
+                  {/* 社群綁定說明 */}
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mt-6">
                     <div className="flex items-start space-x-3">
                       <span className="text-blue-500 text-lg">💡</span>
                       <div>
                         <h4 className="text-blue-800 dark:text-blue-200 font-semibold text-sm">
-                          社群連接說明
+                          社群綁定說明
                         </h4>
                         <ul className="text-blue-700 dark:text-blue-300 text-sm mt-1 space-y-1">
-                          <li>• 連接社群帳號後，您可以使用社群帳號快速登入</li>
+                          <li className="text-orange-600 dark:text-orange-400 font-medium">
+                            <span className="mr-1">⚠️</span>
+                            注意：一旦綁定社群帳號，就無法解除綁定，請謹慎考慮後再進行綁定
+                          </li>
+                          <li>• 綁定社群帳號後，您可以使用社群帳號快速登入</li>
                           <li>• 您的社群帳號資訊將用於完善個人資料</li>
-                          <li>• 連接的社群帳號將顯示在此頁面中</li>
+                          <li>• 綁定的社群帳號將顯示在此頁面中</li>
                         </ul>
                       </div>
                     </div>
