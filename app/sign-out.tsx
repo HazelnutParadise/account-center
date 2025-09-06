@@ -21,7 +21,7 @@ const SignOut = ({ onSignOut }: Props) => {
   return (
     <button
       onClick={handleSignOut}
-      className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+      className="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg text-sm sm:text-base min-h-[44px]"
     >
       登出
     </button>

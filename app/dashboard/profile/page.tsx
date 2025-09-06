@@ -201,33 +201,33 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
 
   return (
     <div className="max-w-4xl mx-auto">
-      <header className="mb-8 flex justify-between items-center">
+      <header className="mb-6 sm:mb-8 flex flex-col sm:flex-row sm:justify-between sm:items-start space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">
             個人資料
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300">
             {isEditMode ? '編輯您的帳號資訊和個人設定' : '檢視您的帳號資訊和個人設定'}
           </p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
           <Link
             href="/dashboard"
-            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors text-center sm:text-left"
           >
             ← 返回總覽
           </Link>
           {!isEditMode ? (
             <Link
               href="/dashboard/profile?edit=true"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+              className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg text-center text-sm sm:text-base"
             >
               編輯資料
             </Link>
           ) : (
             <Link
               href="/dashboard/profile"
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center"
             >
               取消編輯
             </Link>
@@ -308,30 +308,30 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
         <>
           {/* 顯示模式 */}
           {!isEditMode ? (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* 基本資訊卡片 */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">基本資訊</h3>
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white">基本資訊</h3>
                 </div>
-                <div className="p-6">
-                  <div className="flex items-center space-x-6 mb-6">
+                <div className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
                     <div className="flex-shrink-0">
                       <Avatar
                         src={accountInfo.avatar}
                         alt="Avatar"
                         name={accountInfo.name || accountInfo.username}
-                        size={120}
+                        size={100}
                       />
                     </div>
-                    <div className="flex-1">
-                      <h4 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
+                    <div className="flex-1 text-center sm:text-left min-w-0">
+                      <h4 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-2 truncate">
                         {accountInfo.name || '未設定'}
                       </h4>
-                      <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">
+                      <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 mb-2 truncate">
                         @{accountInfo.username}
                       </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 break-all">
                         用戶 ID: {accountInfo.id}
                       </p>
                     </div>
@@ -341,53 +341,53 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
 
               {/* 個人資料卡片 */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">個人資料</h3>
+                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-4 sm:px-6 py-3 sm:py-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white">個人資料</h3>
                 </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           姓氏
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.profile?.familyName || '未設定'}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           暱稱
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.profile?.nickname || '未設定'}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           性別
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.profile?.gender === 'male' ? '男性' :
                            accountInfo.profile?.gender === 'female' ? '女性' :
                            accountInfo.profile?.gender === 'other' ? '其他' : '未設定'}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           生日
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.profile?.birthdate || '未設定'}
                         </p>
                       </div>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-3 sm:space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           個人網站
                         </label>
-                        <p className="text-gray-900 dark:text-white break-all">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white break-all">
                           {accountInfo.profile?.website ? (
                             <a 
                               href={accountInfo.profile.website} 
@@ -401,34 +401,34 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           時區
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.profile?.zoneinfo || '未設定'}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           語言
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.profile?.locale || '未設定'}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           電子郵件
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white break-all">
                           {accountInfo.primaryEmail || '未設定'}
                         </p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        <label className="block text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                           電話號碼
                         </label>
-                        <p className="text-gray-900 dark:text-white">
+                        <p className="text-sm sm:text-base text-gray-900 dark:text-white">
                           {accountInfo.primaryPhone || '未設定'}
                         </p>
                       </div>
@@ -439,10 +439,10 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
 
               {/* 社群帳號卡片 */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">社群帳號</h3>
+                <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-4 sm:px-6 py-3 sm:py-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white">社群帳號</h3>
                 </div>
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   {socialIdentities && 
                    (Array.isArray((socialIdentities as { socialIdentities?: unknown[] }).socialIdentities) && 
                     (socialIdentities as { socialIdentities?: unknown[] }).socialIdentities!.length > 0) || 
@@ -751,33 +751,33 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
             </div>
           ) : (
             /* 編輯模式 */
-            <form action={updateProfile} className="space-y-6">
+            <form action={updateProfile} className="space-y-4 sm:space-y-6">
               {/* 基本資訊編輯 */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">基本資訊</h3>
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-4 sm:px-6 py-3 sm:py-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white">基本資訊</h3>
                 </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {/* 頭像區域 */}
-                    <div className="md:col-span-2 flex items-center space-x-6">
+                    <div className="sm:col-span-2 flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
                       <div className="flex-shrink-0">
                         <Avatar
                           src={accountInfo.avatar}
                           alt="Avatar"
                           name={accountInfo.name || accountInfo.username}
-                          size={100}
+                          size={80}
                         />
                       </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      <div className="flex-1 w-full">
+                        <h4 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2 text-center sm:text-left">
                           頭像 URL
                         </h4>
                         <input
                           type="url"
                           name="avatar"
                           defaultValue={accountInfo.avatar || ''}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
                           placeholder="https://example.com/avatar.jpg"
                         />
                       </div>
@@ -785,21 +785,21 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
 
                     {/* 名字 */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         名字
                       </label>
                       <input
                         type="text"
                         name="name"
                         defaultValue={accountInfo.name || ''}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base"
                         placeholder="請輸入您的名字"
                       />
                     </div>
 
                     {/* 用戶名 */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         用戶名 <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -807,7 +807,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         name="username"
                         defaultValue={accountInfo.username}
                         required
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm sm:text-base ${
                           params?.error === 'username_already_in_use' 
                             ? 'border-red-300 dark:border-red-600 focus:ring-red-500' 
                             : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500'
@@ -815,7 +815,7 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
                         placeholder="請輸入用戶名"
                       />
                       {params?.error === 'username_already_in_use' && (
-                        <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        <p className="mt-1 text-xs sm:text-sm text-red-600 dark:text-red-400">
                           此用戶名已被使用，請選擇其他用戶名
                         </p>
                       )}
@@ -826,11 +826,11 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
 
               {/* 個人資料編輯 */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
-                  <h3 className="text-xl font-semibold text-white">個人資料</h3>
+                <div className="bg-gradient-to-r from-green-600 to-teal-600 px-4 sm:px-6 py-3 sm:py-4">
+                  <h3 className="text-lg sm:text-xl font-semibold text-white">個人資料</h3>
                 </div>
-                <div className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {/* 姓氏 */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -963,16 +963,16 @@ const Profile = async({ searchParams }: { searchParams?: Promise<{ success?: str
               </div>
 
               {/* 提交按鈕 */}
-              <div className="flex justify-end space-x-4">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4">
                 <Link
                   href="/dashboard/profile"
-                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-center"
                 >
                   取消
                 </Link>
                 <button
                   type="submit"
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-center"
                 >
                   儲存變更
                 </button>

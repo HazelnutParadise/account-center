@@ -63,9 +63,32 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* 確保所有按鈕和可點擊元素都有手型指標 */
+/* 響應式基礎設定 */
+* {
+  box-sizing: border-box;
+}
+
+/* 防止在行動裝置上輸入時縮放 */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+  font-size: 16px; /* iOS Safari 不會縮放當字體大小 >= 16px */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* 改善觸控體驗 */
 button,
 input[type="button"],
 input[type="submit"],
@@ -76,9 +99,20 @@ a,
 label[for],
 select {
   cursor: pointer;
+  min-height: 44px; /* iOS Human Interface Guidelines 建議的最小觸控目標 */
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 button:disabled,
 input:disabled {
   cursor: not-allowed;
+}
+
+/* 響應式圖片 */
+img {
+  max-width: 100%;
+  height: auto;
 }
