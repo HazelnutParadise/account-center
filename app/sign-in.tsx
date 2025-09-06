@@ -1,15 +1,26 @@
 'use client';
 
+import { useNProgress } from './hooks/useNProgress';
+
 type Props = {
   onSignIn: () => Promise<void>;
 };
 
 const SignIn = ({ onSignIn }: Props) => {
+  const { start } = useNProgress();
+
+  const handleSignIn = async () => {
+    start(); // 立即顯示進度條
+    try {
+      await onSignIn();
+    } catch (error) {
+      console.error('登入失敗:', error);
+    }
+  };
+
   return (
     <button
-      onClick={() => {
-        onSignIn();
-      }}
+      onClick={handleSignIn}
       className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
     >
       登入
