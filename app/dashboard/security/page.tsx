@@ -1,46 +1,58 @@
-import { getLogtoContext, getAccountInfo, setPassword, AccountInfo } from '../../logto';
-import { redirect } from 'next/navigation';
+import {
+  getLogtoContext,
+  getAccountInfo,
+  AccountInfo,
+  managementAPI,
+} from "../../logto";
+import { redirect } from "next/navigation";
 
 const setUserPassword = async (formData: FormData) => {
-  'use server';
+  "use server";
 
-  const password = formData.get('password') as string;
-  const confirmPassword = formData.get('confirmPassword') as string;
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!password || !confirmPassword) {
-    redirect('/dashboard/security?error=missing_fields');
+    redirect("/dashboard/security?error=missing_fields");
   }
 
   if (password !== confirmPassword) {
-    redirect('/dashboard/security?error=password_mismatch');
+    redirect("/dashboard/security?error=password_mismatch");
   }
 
   if (password.length < 8) {
-    redirect('/dashboard/security?error=password_too_short');
+    redirect("/dashboard/security?error=password_too_short");
   }
 
   try {
-    await setPassword(password);
+    await managementAPI.setPassword(password);
   } catch (error) {
-    console.error('設定密碼失敗:', error);
+    console.error("設定密碼失敗:", error);
     // 提供更詳細的錯誤信息
-    let errorType = 'set_password_failed';
+    let errorType = "set_password_failed";
     if (error instanceof Error) {
-      if (error.message.includes('401') || error.message.includes('403')) {
-        errorType = 'auth_failed';
-      } else if (error.message.includes('400')) {
-        errorType = 'invalid_password';
-      } else if (error.message.includes('network') || error.message.includes('fetch')) {
-        errorType = 'network_error';
+      if (error.message.includes("401") || error.message.includes("403")) {
+        errorType = "auth_failed";
+      } else if (error.message.includes("400")) {
+        errorType = "invalid_password";
+      } else if (
+        error.message.includes("network") ||
+        error.message.includes("fetch")
+      ) {
+        errorType = "network_error";
       }
     }
     redirect(`/dashboard/security?error=${errorType}`);
   }
 
-  redirect('/dashboard/security?success=true');
+  redirect("/dashboard/security?success=true");
 };
 
-const Security = async({ searchParams }: { searchParams?: Promise<{ success?: string; error?: string }> }) => {
+const Security = async ({
+  searchParams,
+}: {
+  searchParams?: Promise<{ success?: string; error?: string }>;
+}) => {
   const { isAuthenticated } = await getLogtoContext();
   let accountInfo: AccountInfo | { error: string } | null = null;
 
@@ -48,7 +60,7 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
     try {
       accountInfo = await getAccountInfo();
     } catch {
-      accountInfo = { error: '取得帳號資訊失敗' };
+      accountInfo = { error: "取得帳號資訊失敗" };
     }
   }
 
@@ -87,29 +99,37 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
             <span className="text-2xl mr-3">❌</span>
             <div>
               <h4 className="text-red-800 dark:text-red-200 font-semibold">
-                {params.error === 'password_mismatch' && '密碼確認不相符'}
-                {params.error === 'missing_fields' && '請填寫所有必填欄位'}
-                {params.error === 'password_too_short' && '密碼長度至少需要 8 個字符'}
-                {params.error === 'set_password_failed' && '設定密碼失敗'}
-                {params.error === 'auth_failed' && '認證失敗'}
-                {params.error === 'invalid_password' && '密碼不符合要求'}
-                {params.error === 'network_error' && '網路連接錯誤'}
+                {params.error === "password_mismatch" && "密碼確認不相符"}
+                {params.error === "missing_fields" && "請填寫所有必填欄位"}
+                {params.error === "password_too_short" &&
+                  "密碼長度至少需要 8 個字符"}
+                {params.error === "set_password_failed" && "設定密碼失敗"}
+                {params.error === "auth_failed" && "認證失敗"}
+                {params.error === "invalid_password" && "密碼不符合要求"}
+                {params.error === "network_error" && "網路連接錯誤"}
               </h4>
               <p className="text-red-600 dark:text-red-300 text-sm">
-                {params.error === 'password_mismatch' && '請確認新密碼和確認密碼相同'}
-                {params.error === 'missing_fields' && '請填寫密碼和確認密碼欄位'}
-                {params.error === 'password_too_short' && '密碼長度至少需要 8 個字符'}
-                {params.error === 'set_password_failed' && '設定密碼時發生未知錯誤，請稍後再試'}
-                {params.error === 'auth_failed' && '認證已過期，請重新登入後再試'}
-                {params.error === 'invalid_password' && '密碼不符合系統要求，請檢查密碼強度'}
-                {params.error === 'network_error' && '網路連接失敗，請檢查網路連接後再試'}
+                {params.error === "password_mismatch" &&
+                  "請確認新密碼和確認密碼相同"}
+                {params.error === "missing_fields" &&
+                  "請填寫密碼和確認密碼欄位"}
+                {params.error === "password_too_short" &&
+                  "密碼長度至少需要 8 個字符"}
+                {params.error === "set_password_failed" &&
+                  "設定密碼時發生未知錯誤，請稍後再試"}
+                {params.error === "auth_failed" &&
+                  "認證已過期，請重新登入後再試"}
+                {params.error === "invalid_password" &&
+                  "密碼不符合系統要求，請檢查密碼強度"}
+                {params.error === "network_error" &&
+                  "網路連接失敗，請檢查網路連接後再試"}
               </p>
             </div>
           </div>
         </div>
       )}
 
-      {accountInfo && 'error' in accountInfo ? (
+      {accountInfo && "error" in accountInfo ? (
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
           <div className="text-red-500 text-lg font-medium mb-2">
             取得帳號資訊失敗
@@ -123,9 +143,7 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
           {/* 密碼設定 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-4">
-              <h3 className="text-xl font-semibold text-white">
-                密碼管理
-              </h3>
+              <h3 className="text-xl font-semibold text-white">密碼管理</h3>
             </div>
             <div className="p-6">
               {accountInfo.hasPassword ? (
@@ -247,9 +265,7 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
           {/* 登入記錄 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
-              <h3 className="text-xl font-semibold text-white">
-                登入記錄
-              </h3>
+              <h3 className="text-xl font-semibold text-white">登入記錄</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -259,7 +275,9 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
                       最後登入
                     </h4>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      {new Date(accountInfo.lastSignInAt).toLocaleString('zh-TW')}
+                      {new Date(accountInfo.lastSignInAt).toLocaleString(
+                        "zh-TW"
+                      )}
                     </p>
                   </div>
                   <div className="text-green-600 dark:text-green-400">
@@ -273,7 +291,7 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
                       帳號創建
                     </h4>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      {new Date(accountInfo.createdAt).toLocaleString('zh-TW')}
+                      {new Date(accountInfo.createdAt).toLocaleString("zh-TW")}
                     </p>
                   </div>
                   <div className="text-blue-600 dark:text-blue-400">
@@ -287,24 +305,31 @@ const Security = async({ searchParams }: { searchParams?: Promise<{ success?: st
           {/* 安全建議 */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
             <div className="bg-gradient-to-r from-green-600 to-teal-600 px-6 py-4">
-              <h3 className="text-xl font-semibold text-white">
-                安全建議
-              </h3>
+              <h3 className="text-xl font-semibold text-white">安全建議</h3>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                <div className={`p-4 rounded-lg ${accountInfo.hasPassword ? 'bg-green-50 dark:bg-green-900/20' : 'bg-yellow-50 dark:bg-yellow-900/20'}`}>
+                <div
+                  className={`p-4 rounded-lg ${
+                    accountInfo.hasPassword
+                      ? "bg-green-50 dark:bg-green-900/20"
+                      : "bg-yellow-50 dark:bg-yellow-900/20"
+                  }`}
+                >
                   <div className="flex items-start space-x-3">
-                    <span className="text-2xl">{accountInfo.hasPassword ? '✅' : '⚠️'}</span>
+                    <span className="text-2xl">
+                      {accountInfo.hasPassword ? "✅" : "⚠️"}
+                    </span>
                     <div>
                       <h4 className="font-semibold text-gray-900 dark:text-white">
-                        {accountInfo.hasPassword ? '密碼已設定' : '建議設定密碼'}
+                        {accountInfo.hasPassword
+                          ? "密碼已設定"
+                          : "建議設定密碼"}
                       </h4>
                       <p className="text-gray-600 dark:text-gray-300 text-sm">
                         {accountInfo.hasPassword
-                          ? '您的帳號已經有密碼保護，安全性良好。'
-                          : '設定密碼可以提升您的帳號安全性，建議盡快設定。'
-                        }
+                          ? "您的帳號已經有密碼保護，安全性良好。"
+                          : "設定密碼可以提升您的帳號安全性，建議盡快設定。"}
                       </p>
                     </div>
                   </div>

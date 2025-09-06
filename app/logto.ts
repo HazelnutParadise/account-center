@@ -178,31 +178,46 @@ const managementAPIConfig = {
   logtoEndpoint: process.env.LOGTO_ENDPOINT!,
 };
 
-const {
-  apiClient: managementApiClient,
-  clientCredentials: managementApiClientCredentials,
-} = createManagementApi("default", {
-  clientId: managementAPIConfig.clientId,
-  clientSecret: managementAPIConfig.clientSecret,
-  baseUrl: managementAPIConfig.logtoEndpoint,
-  apiIndicator: "https://default.logto.app/api",
-});
-
-export const setPassword = async (password: string) => {
-  const accessToken = await getAccessTokenRSC();
-  const res = await fetch(`${logtoConfig.endpoint}/api/my-account/password`, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ password }),
+// 抽出共用 context 初始化
+const getManagementContext = async () => {
+  const { apiClient, clientCredentials } = createManagementApi("default", {
+    clientId: managementAPIConfig.clientId,
+    clientSecret: managementAPIConfig.clientSecret,
+    baseUrl: managementAPIConfig.logtoEndpoint,
+    apiIndicator: "https://default.logto.app/api",
   });
-
-  if (!res.ok) {
-    const errorText = await res.text().catch(() => "Unknown error");
-    throw new Error(`${res.status}: ${errorText}`);
+  const accessToken = (await clientCredentials.getAccessToken()).value;
+  const { claims } = await _getLogtoContext(logtoConfig);
+  const userId = claims?.sub;
+  if (!userId) {
+    throw new Error("User ID is missing in token claims");
   }
+  return { accessToken, userId, apiClient };
+};
 
-  return res.json();
+export const managementAPI = {
+  setPassword: async (password: string) => {
+    const { accessToken, userId } = await getManagementContext();
+    console.log("Setting password for userId:", userId);
+    console.log("Using accessToken:", accessToken);
+    const res = await fetch(
+      `${logtoConfig.endpoint}/api/users/${userId}/password`,
+      {
+        method: "PATCH",
+        headers: {
+          authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      }
+    );
+
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => "Unknown error");
+      throw new Error(`${res.status}: ${errorText}`);
+    }
+
+    return res.json();
+  },
+  // 其他管理 API 方法可在此擴充，直接取得 accessToken, userId, apiClient
 };
