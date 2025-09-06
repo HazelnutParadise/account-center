@@ -85,17 +85,15 @@ export const updateAccountInfo = async (data: {
   
   Object.entries(data).forEach(([key, value]) => {
     if (typeof value === 'string') {
-      const trimmedValue = value.trim();
       if (key === 'username') {
         // username 不能為空，如果為空則不更新
+        const trimmedValue = value.trim();
         if (trimmedValue) {
           filteredData[key] = trimmedValue;
         }
       } else {
-        // name 和 avatar 只有在有值時才更新
-        if (trimmedValue) {
-          filteredData[key] = trimmedValue;
-        }
+        // name 和 avatar 接受所有字串值（包括空字串用於清空）
+        filteredData[key] = value;
       }
     } else if (value !== undefined) {
       filteredData[key] = value;
@@ -150,11 +148,12 @@ export const updateProfileInfo = async (data: {
       // 處理地址物件
       const addressData: Record<string, string> = {};
       Object.entries(value).forEach(([addressKey, addressValue]) => {
-        if (typeof addressValue === 'string' && addressValue !== undefined) {
+        if (typeof addressValue === 'string') {
+          // 接受所有字串值，包括空字串
           addressData[addressKey] = addressValue;
         }
       });
-      // 只有當地址物件有內容時才加入
+      // 只要有地址欄位就加入（即使是空字串）
       if (Object.keys(addressData).length > 0) {
         filteredData[key] = addressData;
       }

@@ -6,6 +6,16 @@ import { redirect } from 'next/navigation';
 const updateProfile = async (formData: FormData) => {
   'use server';
 
+  // 先獲取當前帳號資訊來比較
+  let currentAccountInfo;
+  try {
+    currentAccountInfo = await getAccountInfo();
+  } catch (error) {
+    console.error('無法獲取當前帳號資訊:', error);
+    redirect('/dashboard/profile?error=update_failed');
+    return;
+  }
+
   // 基本帳號資訊更新 - 允許空值（除了username必須有值）
   const accountData: {
     username?: string;
@@ -25,11 +35,15 @@ const updateProfile = async (formData: FormData) => {
     return;
   }
   
-  // name 和 avatar 只有在有值時才更新
-  if (nameValue !== null) accountData.name = nameValue?.trim() || undefined;
-  if (avatarValue !== null) accountData.avatar = avatarValue?.trim() || undefined;
+  // name 和 avatar 只在有變化時更新
+  if (nameValue !== null && nameValue !== (currentAccountInfo.name || '')) {
+    accountData.name = nameValue.trim();
+  }
+  if (avatarValue !== null && avatarValue !== (currentAccountInfo.avatar || '')) {
+    accountData.avatar = avatarValue.trim();
+  }
 
-  // 個人資料更新 - 允許空值
+  // 個人資料更新 - 只發送有變化的欄位
   const profileData: {
     familyName?: string;
     givenName?: string;
@@ -50,7 +64,7 @@ const updateProfile = async (formData: FormData) => {
     };
   } = {};
 
-  // 所有個人資料欄位都允許空值，但區分"不更新"和"清空"
+  // 取得表單資料
   const familyName = formData.get('familyName') as string;
   const givenName = formData.get('givenName') as string;
   const middleName = formData.get('middleName') as string;
@@ -62,51 +76,94 @@ const updateProfile = async (formData: FormData) => {
   const zoneinfo = formData.get('zoneinfo') as string;
   const locale = formData.get('locale') as string;
 
-  // 只有當表單提交了這些欄位時，才包含在更新中
-  if (familyName !== null) profileData.familyName = familyName?.trim() || undefined;
-  if (givenName !== null) profileData.givenName = givenName?.trim() || undefined;
-  if (middleName !== null) profileData.middleName = middleName?.trim() || undefined;
-  if (nickname !== null) profileData.nickname = nickname?.trim() || undefined;
-  if (profile !== null) profileData.profile = profile?.trim() || undefined;
-  if (website !== null) profileData.website = website?.trim() || undefined;
-  if (gender !== null) profileData.gender = gender?.trim() || undefined;
-  if (birthdate !== null) profileData.birthdate = birthdate?.trim() || undefined;
-  if (zoneinfo !== null) profileData.zoneinfo = zoneinfo?.trim() || undefined;
-  if (locale !== null) profileData.locale = locale?.trim() || undefined;
+  // 只有在欄位有值時才更新（包括空字串用於清空）
+  // 比較表單值與當前值，只有不同時才更新
+  const currentProfile = currentAccountInfo.profile || {};
+  
+  if (familyName !== null && familyName !== (currentProfile.familyName || '')) {
+    profileData.familyName = familyName.trim();
+  }
+  if (givenName !== null && givenName !== (currentProfile.givenName || '')) {
+    profileData.givenName = givenName.trim();
+  }
+  if (middleName !== null && middleName !== (currentProfile.middleName || '')) {
+    profileData.middleName = middleName.trim();
+  }
+  if (nickname !== null && nickname !== (currentProfile.nickname || '')) {
+    profileData.nickname = nickname.trim();
+  }
+  if (profile !== null && profile !== (currentProfile.profile || '')) {
+    profileData.profile = profile.trim();
+  }
+  if (website !== null && website !== (currentProfile.website || '')) {
+    profileData.website = website.trim();
+  }
+  if (gender !== null && gender !== (currentProfile.gender || '')) {
+    profileData.gender = gender.trim();
+  }
+  if (birthdate !== null && birthdate !== (currentProfile.birthdate || '')) {
+    profileData.birthdate = birthdate.trim();
+  }
+  if (zoneinfo !== null && zoneinfo !== (currentProfile.zoneinfo || '')) {
+    profileData.zoneinfo = zoneinfo.trim();
+  }
+  if (locale !== null && locale !== (currentProfile.locale || '')) {
+    profileData.locale = locale.trim();
+  }
 
-  // 地址資訊 - 只有當表單提交了這些欄位時，才包含在更新中
+  // 地址資訊 - 只更新有變化的欄位
   const streetAddress = formData.get('streetAddress') as string;
   const locality = formData.get('locality') as string;
   const region = formData.get('region') as string;
   const postalCode = formData.get('postalCode') as string;
   const country = formData.get('country') as string;
 
-  const hasAddressFields = streetAddress !== null || locality !== null || region !== null || postalCode !== null || country !== null;
-  
-  if (hasAddressFields) {
-    const addressData: {
-      streetAddress?: string;
-      locality?: string;
-      region?: string;
-      postalCode?: string;
-      country?: string;
-    } = {};
-    
-    addressData.streetAddress = streetAddress?.trim() || undefined;
-    addressData.locality = locality?.trim() || undefined;
-    addressData.region = region?.trim() || undefined;
-    addressData.postalCode = postalCode?.trim() || undefined;
-    addressData.country = country?.trim() || undefined;
-    
+  const currentAddress = currentProfile.address || {};
+  const addressData: {
+    streetAddress?: string;
+    locality?: string;
+    region?: string;
+    postalCode?: string;
+    country?: string;
+  } = {};
+
+  let hasAddressChanges = false;
+
+  if (streetAddress !== null && streetAddress !== (currentAddress.streetAddress || '')) {
+    addressData.streetAddress = streetAddress.trim();
+    hasAddressChanges = true;
+  }
+  if (locality !== null && locality !== (currentAddress.locality || '')) {
+    addressData.locality = locality.trim();
+    hasAddressChanges = true;
+  }
+  if (region !== null && region !== (currentAddress.region || '')) {
+    addressData.region = region.trim();
+    hasAddressChanges = true;
+  }
+  if (postalCode !== null && postalCode !== (currentAddress.postalCode || '')) {
+    addressData.postalCode = postalCode.trim();
+    hasAddressChanges = true;
+  }
+  if (country !== null && country !== (currentAddress.country || '')) {
+    addressData.country = country.trim();
+    hasAddressChanges = true;
+  }
+
+  if (hasAddressChanges) {
     profileData.address = addressData;
   }
 
   try {
-    // 更新基本帳號資訊
-    await updateAccountInfo(accountData);
+    // 只有當帳號資料有變化時才更新
+    if (Object.keys(accountData).length > 0) {
+      await updateAccountInfo(accountData);
+    }
 
-    // 更新個人資料
-    await updateProfileInfo(profileData);
+    // 只有當個人資料有變化時才更新
+    if (Object.keys(profileData).length > 0) {
+      await updateProfileInfo(profileData);
+    }
   } catch (error) {
     console.error('更新失敗:', error);
     redirect('/dashboard/profile?error=update_failed');
