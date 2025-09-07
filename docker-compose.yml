@@ -1,0 +1,7 @@
+services:
+  app:
+    image: account-center:latest
+    ports:
+      - "1742:3000"
+    environment:
+      - NODE_ENV=production
