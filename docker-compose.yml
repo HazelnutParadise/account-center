@@ -5,3 +5,4 @@ services:
       - "1742:3000"
     environment:
       - NODE_ENV=production
+    restart: unless-stopped
