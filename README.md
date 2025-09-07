@@ -51,10 +51,11 @@ Required variables:
 - `LOGTO_ENDPOINT`: Your Logto endpoint URL
 - `LOGTO_APP_ID`: Your Logto application ID
 - `LOGTO_APP_SECRET`: Your Logto application secret
-- `LOGTO_BASE_URL`: Your application base URL
 - `LOGTO_COOKIE_SECRET`: A random secret for cookies (at least 32 characters)
 - `LOGTO_M2M_CLIENT_ID`: Machine-to-machine client ID for management API
 - `LOGTO_M2M_CLIENT_SECRET`: Machine-to-machine client secret
+- `BASE_URL_DEV`: Base URL for development (e.g., `http://localhost:3000`)
+- `BASE_URL_PROD`: Base URL for production (e.g., `https://your
 
 Optional (for social login):
 - `LOGTO_GITHUB_CONNECTOR_ID`: GitHub connector ID from Logto admin
