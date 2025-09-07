@@ -26,8 +26,6 @@ This application supports connecting your account with:
 ### How it works:
 1. Users can connect their social accounts in the Security settings
 2. Once connected, they can use these accounts for quick login
-3. Users can disconnect social accounts at any time
-4. At least one login method (password or social account) should be maintained
 
 ## Getting Started
 
