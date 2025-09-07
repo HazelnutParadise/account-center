@@ -1,0 +1,9 @@
+.tar
+.zip
+.tgz
+.gitignore
+.git
+node_modules
+.vscode
+.md
+.idea
