@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const code = searchParams.get('code');
     const state = searchParams.get('state');
     const error = searchParams.get('error');
+    const origin = request.nextUrl.origin;
 
     console.log('Callback received with params:', {
       code: code ? code.substring(0, 20) + '...' : null,
@@ -18,20 +19,20 @@ export async function GET(request: NextRequest) {
     // 檢查是否有錯誤
     if (error) {
       console.error('Social auth error:', error);
-      return NextResponse.redirect(new URL('/dashboard/profile?error=social_auth_failed', request.url));
+      return NextResponse.redirect(new URL('/dashboard/profile?error=social_auth_failed', origin));
     }
 
     // 檢查必要參數
     if (!code || !state) {
       console.error('Missing required parameters:', { code: !!code, state: !!state });
-      return NextResponse.redirect(new URL('/dashboard/profile?error=invalid_callback', request.url));
+      return NextResponse.redirect(new URL('/dashboard/profile?error=invalid_callback', origin));
     }
 
     // 從 state 參數中提取 verificationRecordId 和 connectorId
     const stateParts = state.split(':');
     if (stateParts.length !== 3) {
       console.error('Invalid state format:', state);
-      return NextResponse.redirect(new URL('/dashboard/profile?error=invalid_state_format', request.url));
+      return NextResponse.redirect(new URL('/dashboard/profile?error=invalid_state_format', origin));
     }
 
     const [originalState, verificationRecordId, connectorId] = stateParts;
@@ -49,8 +50,8 @@ export async function GET(request: NextRequest) {
       await managementAPI.completeSocialConnection(verificationRecordId, code, originalState, connectorId);
       
       console.log('Social connection completed successfully');
-      return NextResponse.redirect(new URL('/dashboard/profile?success=social_connected', request.url));
-      
+      return NextResponse.redirect(new URL('/dashboard/profile?success=social_connected', origin));
+
     } catch (error) {
       console.error('Failed to process social callback:', error);
       console.error('Error message:', error instanceof Error ? error.message : String(error));
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
       // 處理特定的錯誤類型
       if (error instanceof Error && error.message.startsWith('IDENTITY_ALREADY_IN_USE:')) {
         console.log('Detected identity already in use error, redirecting...');
-        return NextResponse.redirect(new URL('/dashboard/profile?error=social_already_connected', request.url));
+        return NextResponse.redirect(new URL('/dashboard/profile?error=social_already_connected', origin));
       }
       
       // 根據錯誤類型提供更具體的錯誤訊息
@@ -75,10 +76,10 @@ export async function GET(request: NextRequest) {
       }
       
       console.log('Redirecting to error type:', errorType);
-      return NextResponse.redirect(new URL(`/dashboard/profile?error=${errorType}`, request.url));
+      return NextResponse.redirect(new URL(`/dashboard/profile?error=${errorType}`, origin));
     }
   } catch (error) {
     console.error('Unexpected error in social callback:', error);
-    return NextResponse.redirect(new URL('/dashboard/profile?error=unexpected_error', request.url));
+    return NextResponse.redirect(new URL('/dashboard/profile?error=unexpected_error', origin));
   }
 }
