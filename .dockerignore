@@ -3,7 +3,9 @@
 .tgz
 .gitignore
 .git
-node_modules
+/node_modules
 .vscode
 .md
 .idea
+/.next/
+.DS_Store
