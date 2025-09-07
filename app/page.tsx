@@ -1,6 +1,7 @@
 import { getLogtoContext, signIn } from './logto';
 import { redirect } from 'next/navigation';
 import SignIn from './sign-in';
+import Image from 'next/image';
 
 const Home = async() => {
   const { isAuthenticated } = await getLogtoContext();
@@ -14,6 +15,7 @@ const Home = async() => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="max-w-4xl mx-auto">
           <header className="text-center mb-8">
+            <h2 className="text-xl sm:text-4xl text-gray-900 dark:text-white mb-2">榛果繽紛樂</h2>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-2">
               帳號中心
             </h1>
@@ -25,7 +27,13 @@ const Home = async() => {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sm:p-8 text-center">
             <div className="mb-6">
               <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-content mx-auto mb-4">
-                <span className="text-2xl sm:text-4xl font-bold text-white">AC</span>
+                <Image
+                  src="https://src.hazelnut-paradise.com/AccountCenter.png"
+                  alt="Logo"
+                  width={80}
+                  height={80}
+                  className="mx-auto"
+                />
               </div>
               <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-2">
                 歡迎使用帳號中心

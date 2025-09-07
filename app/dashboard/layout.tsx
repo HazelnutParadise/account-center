@@ -1,6 +1,7 @@
 import { getLogtoContext } from "../logto";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
@@ -18,7 +19,13 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* 行動裝置上的頂部導航 */}
       <div className="lg:hidden bg-white dark:bg-gray-800 shadow-lg">
-        <div className="p-4">
+        <div className="p-4 flex items-center">
+          <Image
+            src="https://src.hazelnut-paradise.com/AccountCenter.png"
+            alt="Logo"
+            width={28}
+            height={28}
+          />
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
             帳號中心
           </h2>
@@ -57,11 +64,21 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
       {/* 桌面版佈局 */}
       <div className="flex">
         {/* 側邊導航欄 - 僅在桌面版顯示 */}
-        <aside className="hidden lg:block w-64 bg-white dark:bg-gray-800 shadow-lg min-h-screen">
-          <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
-              帳號中心
-            </h2>
+        <aside className="hidden lg:block w-55 bg-white dark:bg-gray-800 shadow-lg min-h-screen">
+          <div className="p-6 flex flex-col items-center">
+            <Image
+              src="https://src.hazelnut-paradise.com/AccountCenter.png"
+              alt="Logo"
+              width={100}
+              height={100}
+            />
+            <div className="flex content-center items-center mb-6">
+              
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                帳號中心
+              </h2>
+            </div>
+
             <nav className="space-y-2">
               <Link
                 href="/dashboard"
