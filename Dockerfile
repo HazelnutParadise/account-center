@@ -1,4 +1,4 @@
-FROM oven/bun:1.2-alpine AS builder
+FROM oven/bun:1.3.5-alpine AS builder
 
 # 設定環境變數
 ENV NODE_ENV=production
@@ -18,7 +18,7 @@ COPY . .
 # 建置專案
 RUN bun run build
 
-FROM oven/bun:1.2-alpine AS runner
+FROM oven/bun:1.3.5-alpine AS runner
 
 WORKDIR /app
 

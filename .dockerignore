@@ -1,11 +1,12 @@
-.tar
-.zip
-.tgz
+*.tar
+*.zip
+*.tgz
 .gitignore
 .git
 /node_modules
 .vscode
-.md
 .idea
 /.next/
 .DS_Store
+.env.example
+*.md
