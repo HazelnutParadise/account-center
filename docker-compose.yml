@@ -1,6 +1,10 @@
 services:
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: account-center:latest
+    pull_policy: build
     ports:
       - "1742:3000"
     environment:

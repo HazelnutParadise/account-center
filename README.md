@@ -169,25 +169,22 @@ Compose refuses to start when any of these variables is missing or empty:
 The two social connector IDs use `${VAR:-}` and may be left empty.
 Shell environment values take precedence over `.env` values.
 
-### Build the image
+### Build from source during deployment
 
-```bash
-docker build -t account-center:latest .
-```
+Deploy from a complete checkout of this repository. Compose builds the root
+`Dockerfile` and tags the result as `account-center:latest`. `pull_policy: build`
+rebuilds the image on each deployment even when that tag already exists locally.
+Docker can reuse unchanged build layers.
 
-If you build on another machine, transfer the image to the deployment host:
-
-```bash
-# On the build machine
-docker save -o account-center.tar account-center:latest
-
-# On the deployment host, after transferring the archive
-docker load -i account-center.tar
-```
+In Portainer, deploy the stack from this Git repository with
+`docker-compose.yml` as the Compose path. The build needs the repository's
+Dockerfile and application sources; pasting only the Compose YAML into the web
+editor does not provide those files. Redeploy from the updated repository to
+include new commits.
 
 ### Configure and start
 
-Place `docker-compose.yml` and your `.env` in the same deployment directory.
+Place your `.env` in the repository root next to `docker-compose.yml`.
 For a new configuration, copy `.env.example` to `.env` and fill in the Logto
 values before starting. Keep any existing `.env` rather than overwriting it.
 

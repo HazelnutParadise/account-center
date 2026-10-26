@@ -41,7 +41,12 @@ try {
   fixture('.env', settings({ ...required, NODE_ENV: 'development', BASE_URL_DEV: 'http://localhost:3000', UNLISTED_SECRET: 'must-not-enter-container' }));
   const valid = resolve();
   assert.equal(valid.code, 0, valid.error);
-  const environment = JSON.parse(valid.output).services.app.environment;
+  const app = JSON.parse(valid.output).services.app;
+  assert.equal(app.build.context, directory, 'Build context must be the Compose directory');
+  assert.equal(app.build.dockerfile, 'Dockerfile');
+  assert.equal(app.pull_policy, 'build', 'Deployment must rebuild rather than reuse a cached image');
+  const environment = app.environment;
+  console.log('PASS: deployment builds the repository Dockerfile even when an image already exists');
   assert.deepEqual(environment, { ...required, NODE_ENV: 'production', LOGTO_GITHUB_CONNECTOR_ID: '', LOGTO_GOOGLE_CONNECTOR_ID: '' });
   assert.doesNotMatch(compose, /^\s*env_file\s*:/m);
   console.log('PASS: default .env substitution, explicit variables only, fixed production mode, optional defaults');
