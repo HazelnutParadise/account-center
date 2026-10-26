@@ -15,7 +15,6 @@ const accountApiStatus = await apiClient.GET('/api/account-center');
 console.log(accountApiStatus.data);
 
 const accessToken = await clientCredentials.getAccessToken();
-console.log(accessToken);
 
 const enableAccountAPIResponse = await fetch(
     `${process.env.LOGTO_ENDPOINT}/api/account-center`,

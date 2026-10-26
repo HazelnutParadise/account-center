@@ -251,7 +251,6 @@ export const managementAPI = {
   setPassword: async (password: string) => {
     const { accessToken, userId } = await getManagementContext();
     console.log("Setting password for userId:", userId);
-    console.log("Using accessToken:", accessToken);
     const res = await fetch(
       `${logtoConfig.endpoint}/api/users/${userId}/password`,
       {

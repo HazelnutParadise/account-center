@@ -31,6 +31,9 @@ This application supports connecting your account with:
 
 ### Prerequisites
 
+Install [Bun 1.4.4](https://github.com/oven-sh/bun/releases/tag/bun-v1.4.4).
+This project uses Bun for dependency installation, scripts, tests, and the runtime.
+
 1. A Logto instance (Cloud or self-hosted)
 2. A Logto application configured with:
    - Standard web application type
@@ -63,13 +66,27 @@ Optional (for social login):
 
 ```bash
 # Install dependencies
-bun install
+bun install --frozen-lockfile
 
 # Run development server
 bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+The project `bunfig.toml` runs package scripts and their child JavaScript
+processes with Bun, using Bun Shell for consistent behavior across platforms.
+Use these commands for validation and a local production server:
+
+```bash
+bun run lint
+bun run typecheck
+bun run test
+bun run build
+bun run start
+```
+
+Commit dependency changes with `bun.lock` so installs remain reproducible.
 
 ### Logto Configuration
 
@@ -126,6 +143,57 @@ This project uses:
 - TypeScript for type checking
 - Tailwind CSS for styling
 - Next.js App Router for routing
+
+## Deploy with Docker Compose
+
+Both Docker stages use `oven/bun:1.4.4-alpine`. The image is built without `.env` files. Compose reads the `.env` file next to
+`docker-compose.yml` and passes its values to the container at startup using
+[`env_file`](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/).
+The server reads these values from `process.env`. Keep the file on the deployment
+host and out of version control.
+
+### Build the image
+
+```bash
+docker build -t account-center:latest .
+```
+
+If you build on another machine, transfer the image to the deployment host:
+
+```bash
+# On the build machine
+docker save -o account-center.tar account-center:latest
+
+# On the deployment host, after transferring the archive
+docker load -i account-center.tar
+```
+
+### Configure and start
+
+Place `docker-compose.yml` and your `.env` in the same deployment directory.
+For a new configuration, copy `.env.example` to `.env` and fill in the Logto
+values before starting. Keep any existing `.env` rather than overwriting it.
+
+Set `BASE_URL_PROD` to the public HTTPS URL registered in your Logto application.
+Compose sets `NODE_ENV=production`, overriding any value in `.env`.
+Local development can continue to use `.env.local` as described above.
+
+From the deployment directory, run:
+
+```bash
+docker compose up -d
+```
+
+The service listens on host port `1742` and container port `3000`.
+When changing `.env`, recreate the container to load the new values:
+
+```bash
+docker compose up -d --force-recreate app
+```
+
+Environment changes do not require rebuilding the image. Replace images built
+with the previous Dockerfile with a newly built image to remove bundled `.env`
+files. Old image archives may still contain the previous configuration.
 
 ## Deploy on Vercel
 

@@ -2,12 +2,18 @@
   "name": "account-center",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.4.4",
+  "engines": {
+    "bun": "1.4.4"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "cross-env NODE_ENV=production next start",
-    "start:win": "$env:NODE_ENV='production'; next start",
-    "lint": "eslint"
+    "start": "NODE_ENV=production next start",
+    "start:win": "bun run start",
+    "lint": "eslint --max-warnings=0",
+    "typecheck": "tsc --noEmit --incremental false",
+    "test": "bun test"
   },
   "dependencies": {
     "@logto/api": "^1.31.0",
@@ -24,7 +30,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "cross-env": "^10.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",

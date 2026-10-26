@@ -18,32 +18,8 @@ const NProgressProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // 監聽路由開始變化
-    const handleRouteStart = () => {
-      NProgress.start();
-    };
-
-    // 監聽路由變化完成
-    const handleRouteComplete = () => {
-      NProgress.done();
-    };
-
-    // 由於 App Router 的路由變化很快，我們使用較短的延遲
-    let timer: NodeJS.Timeout;
-    
-    // 當組件掛載時，如果有正在進行的導航，顯示進度條
-    const startProgress = () => {
-      NProgress.start();
-      timer = setTimeout(() => {
-        NProgress.done();
-      }, 300);
-    };
-
     // 清理函數
     return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
       NProgress.done();
     };
   }, [router]);

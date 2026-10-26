@@ -8,5 +8,8 @@
 .idea
 /.next/
 .DS_Store
-.env.example
+.env
+.env.*
+**/.env
+**/.env.*
 *.md

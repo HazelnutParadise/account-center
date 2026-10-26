@@ -1,4 +1,4 @@
-FROM oven/bun:1.3.5-alpine AS builder
+FROM oven/bun:1.4.4-alpine AS builder
 
 # 設定環境變數
 ENV NODE_ENV=production
@@ -6,8 +6,8 @@ ENV NODE_ENV=production
 # 設定工作目錄
 WORKDIR /app
 
-# 先複製 package.json 和 bun.lockb (優化快取)
-COPY package.json bun.lockb* ./
+# 先複製 package.json 和 bun.lock (優化快取)
+COPY package.json bun.lock bunfig.toml ./
 
 # 安裝相依套件
 RUN bun install --frozen-lockfile
@@ -18,7 +18,7 @@ COPY . .
 # 建置專案
 RUN bun run build
 
-FROM oven/bun:1.3.5-alpine AS runner
+FROM oven/bun:1.4.4-alpine AS runner
 
 WORKDIR /app
 
