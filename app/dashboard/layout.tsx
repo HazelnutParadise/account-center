@@ -64,7 +64,7 @@ const DashboardLayout = async ({ children }: DashboardLayoutProps) => {
       {/* 桌面版佈局 */}
       <div className="flex">
         {/* 側邊導航欄 - 僅在桌面版顯示 */}
-        <aside className="hidden lg:block w-55 bg-white dark:bg-gray-800 shadow-lg min-h-screen">
+        <aside className="hidden lg:block sticky top-0 h-dvh w-55 shrink-0 self-start overflow-y-auto bg-white dark:bg-gray-800 shadow-lg">
           <div className="p-6 flex flex-col items-center">
             <Image
               src="https://src.hazelnut-paradise.com/AccountCenter.png"
