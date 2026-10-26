@@ -3,8 +3,15 @@ services:
     image: account-center:latest
     ports:
       - "1742:3000"
-    env_file:
-      - .env
     environment:
-      - NODE_ENV=production
+      NODE_ENV: production
+      LOGTO_ENDPOINT: "${LOGTO_ENDPOINT:?必須設定 LOGTO_ENDPOINT}"
+      LOGTO_APP_ID: "${LOGTO_APP_ID:?必須設定 LOGTO_APP_ID}"
+      LOGTO_APP_SECRET: "${LOGTO_APP_SECRET:?必須設定 LOGTO_APP_SECRET}"
+      LOGTO_COOKIE_SECRET: "${LOGTO_COOKIE_SECRET:?必須設定 LOGTO_COOKIE_SECRET}"
+      LOGTO_M2M_CLIENT_ID: "${LOGTO_M2M_CLIENT_ID:?必須設定 LOGTO_M2M_CLIENT_ID}"
+      LOGTO_M2M_CLIENT_SECRET: "${LOGTO_M2M_CLIENT_SECRET:?必須設定 LOGTO_M2M_CLIENT_SECRET}"
+      BASE_URL_PROD: "${BASE_URL_PROD:?必須設定 BASE_URL_PROD}"
+      LOGTO_GITHUB_CONNECTOR_ID: "${LOGTO_GITHUB_CONNECTOR_ID:-}"
+      LOGTO_GOOGLE_CONNECTOR_ID: "${LOGTO_GOOGLE_CONNECTOR_ID:-}"
     restart: unless-stopped

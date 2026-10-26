@@ -55,8 +55,8 @@ Required variables:
 - `LOGTO_COOKIE_SECRET`: A random secret for cookies (at least 32 characters)
 - `LOGTO_M2M_CLIENT_ID`: Machine-to-machine client ID for management API
 - `LOGTO_M2M_CLIENT_SECRET`: Machine-to-machine client secret
-- `BASE_URL_DEV`: Base URL for development (e.g., `http://localhost:3000`)
-- `BASE_URL_PROD`: Base URL for production (e.g., `https://your
+- `BASE_URL_DEV`: Base URL required for local development only (e.g., `http://localhost:3000`)
+- `BASE_URL_PROD`: Base URL required for production (e.g., `https://account.example.com`)
 
 Optional (for social login):
 - `LOGTO_GITHUB_CONNECTOR_ID`: GitHub connector ID from Logto admin
@@ -86,7 +86,17 @@ bun run build
 bun run start
 ```
 
+After building, run `bun run test:runtime` to check the production server,
+protected routes, and sign-in callback against a local simulated Logto provider.
+This uses synthetic credentials and does not contact the production tenant.
+
 Commit dependency changes with `bun.lock` so installs remain reproducible.
+Prefer Bun's built-in features when they cover the requirement, including
+`bun check` for type checking and `bun fmt` for formatting.
+
+ESLint remains required because `bun lint` is not available in stable Bun 1.4.4.
+The `typescript` package remains required by Next.js 16.4.3 for its build-time
+type checks. These packages run with Bun.
 
 ### Logto Configuration
 
@@ -130,7 +140,7 @@ app/
 
 ## Technologies Used
 
-- **Next.js 15**: React framework with App Router
+- **Next.js 16.4.3**: React framework with App Router
 - **TypeScript**: Type-safe JavaScript
 - **Tailwind CSS**: Utility-first CSS framework
 - **Logto**: Authentication and user management
@@ -139,18 +149,25 @@ app/
 ## Development
 
 This project uses:
-- ESLint for code linting
-- TypeScript for type checking
+- ESLint for code linting (run separately; Next.js 16 does not lint during builds)
+- Bun built-in `bun check` for standalone type checking
 - Tailwind CSS for styling
 - Next.js App Router for routing
 
 ## Deploy with Docker Compose
 
-Both Docker stages use `oven/bun:1.4.4-alpine`. The image is built without `.env` files. Compose reads the `.env` file next to
-`docker-compose.yml` and passes its values to the container at startup using
-[`env_file`](https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/).
-The server reads these values from `process.env`. Keep the file on the deployment
-host and out of version control.
+Both Docker stages use `oven/bun:1.4.4-alpine`. The image is built without `.env`
+files. Compose reads the `.env` file next to `docker-compose.yml` and substitutes
+its values into the explicit `environment` entries. Only those entries are
+passed to the container. The server reads them from `process.env`.
+Keep `.env` on the deployment host and out of version control.
+
+Required entries use [`${VAR:?message}`](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/).
+Compose refuses to start when any of these variables is missing or empty:
+`LOGTO_ENDPOINT`, `LOGTO_APP_ID`, `LOGTO_APP_SECRET`, `LOGTO_COOKIE_SECRET`,
+`LOGTO_M2M_CLIENT_ID`, `LOGTO_M2M_CLIENT_SECRET`, and `BASE_URL_PROD`.
+The two social connector IDs use `${VAR:-}` and may be left empty.
+Shell environment values take precedence over `.env` values.
 
 ### Build the image
 
@@ -176,7 +193,9 @@ values before starting. Keep any existing `.env` rather than overwriting it.
 
 Set `BASE_URL_PROD` to the public HTTPS URL registered in your Logto application.
 Compose sets `NODE_ENV=production`, overriding any value in `.env`.
-Local development can continue to use `.env.local` as described above.
+Local development can continue to use `.env.local` as described above. `BASE_URL_DEV` is not passed to the production container.
+
+Run `bun run test:compose` from the repository to verify substitution and the required-value checks with synthetic settings.
 
 From the deployment directory, run:
 
